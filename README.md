@@ -104,6 +104,66 @@ Cada arquivo reúne **as ações** do sistema sobre um assunto. São as opções
 
 ---
 
+## Diferença entre modelos e rotas
+
+Jeito fácil de lembrar: **modelo é a ficha, rota é o atendente.**
+
+- **Modelo** = a **ficha em branco**. Diz quais campos uma informação tem (nome, e-mail, senha...). Não pergunta nada e não mostra nada na tela.
+- **Rota** = o **atendente**. Conversa com o usuário (`input` e `print`), confere as regras (ex: e-mail repetido) e usa o modelo para preencher a ficha.
+
+### Exemplo: cadastro de usuário
+
+**`modelos/usuario.py`**: só diz como é um usuário.
+```python
+def criar_usuario(tipo, nome, email, senha):
+    return {
+        "tipo": tipo,
+        "nome": nome,
+        "email": email,
+        "senha": senha,
+    }
+```
+
+**`rotas/usuarios.py`**: pergunta, confere e usa o modelo.
+```python
+from modelos.usuario import criar_usuario
+
+usuarios = []
+
+def cadastrar_usuario():
+    nome = input("Nome: ")                 # conversa com o usuário
+    email = input("E-mail: ")
+    senha = input("Senha: ")
+
+    for u in usuarios:                     # confere a regra
+        if u["email"] == email:
+            print("E-mail já cadastrado!")
+            return
+
+    novo = criar_usuario("Cliente", nome, email, senha)   # preenche a ficha
+    usuarios.append(novo)                  # guarda
+    print("Cadastrado com sucesso!")
+```
+
+### O caminho da informação
+
+```
+Usuário digita  →  ROTA (pergunta e confere)  →  MODELO (monta a ficha)  →  guarda
+```
+
+### Resumo
+
+| | Modelo | Rota |
+|---|---|---|
+| Responde à pergunta | O que **é**? | O que **fazer**? |
+| Tem `input()` ou `print()`? | ❌ Não | ✅ Sim |
+| Tem regras (ex: e-mail repetido)? | ❌ Não | ✅ Sim |
+| Exemplo | "Usuário tem nome, e-mail e senha" | "Cadastrar usuário" |
+
+**Regra de ouro:** se o código tem `input()` ou `print()`, ele vai na **rota**. Se só diz quais campos existem, vai no **modelo**.
+
+---
+
 ## frontend/
 
 É a "parte da frente": as telas que o usuário vai ver. **Será definida mais adiante.**
