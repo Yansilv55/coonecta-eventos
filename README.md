@@ -7,8 +7,6 @@ Projeto universitário (ADS). Sistema que conecta **clientes** que vão fazer um
 
 > Os arquivos ainda estão **vazios**. Este documento explica o que cada um vai fazer, para o time saber onde escrever cada parte.
 
-
-carlos )!
 ---
 
 ## Estrutura do projeto
@@ -32,7 +30,7 @@ coonecta-eventos/
 ├── frontend/
 └── README.md
 ```
-
+print
 ---
 
 ## backend/
