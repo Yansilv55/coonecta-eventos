@@ -3,7 +3,7 @@ from banco import ler, salvar, ARQ_ORCAMENTOS
 CAMPOS = ["id", "email_cliente", "email_prestador", "id_servico", "data_evento",
           "convidados", "detalhes", "status", "resposta"]
 
-# status possíveis: Pendente, Respondido, Recusado
+
 
 
 def todos():

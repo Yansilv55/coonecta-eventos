@@ -14,7 +14,7 @@ def menu_inicial():
 
         if opcao == "1":
             usuario = fazer_login()
-            if usuario:  # login deu certo
+            if usuario:  
                 if usuario["tipo"] == "Cliente":
                     print(">> Área do Cliente (em construção)")
                 else:
