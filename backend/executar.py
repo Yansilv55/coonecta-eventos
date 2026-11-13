@@ -28,6 +28,8 @@ def menu_inicial():
             break
         else:
             print("Opção inválida.")
+            print("Tente novamente.")
+            print("Carlos")
 
 
 if __name__ == "__main__":
