@@ -1,3 +1,8 @@
+# =============================================================
+# avaliacoes.py
+# Tudo sobre AVALIAÇÕES: notas dos clientes e média do prestador
+# =============================================================
+
 from banco import ler, salvar, ARQ_AVALIACOES
 
 CAMPOS = ["email_cliente", "email_prestador", "nota", "comentario"]

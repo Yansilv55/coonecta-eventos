@@ -1,9 +1,23 @@
 # =============================================================
-# rotas/usuarios.py
-# Ações de usuário: cadastro e login
+# usuarios.py
+# Tudo sobre USUÁRIOS: como é um usuário, cadastro e login
 # =============================================================
 
-from modelos.usuario import criar_usuario, CATEGORIAS
+TIPOS = ["Cliente", "Prestador"]
+CATEGORIAS = ["Buffet", "Fotografia", "Decoração", "Música", "Espaço para eventos"]
+
+
+def criar_usuario(tipo, nome, email, senha, nome_negocio="", categoria=""):
+    """Monta um usuário. Cliente não tem nome_negocio nem categoria."""
+    return {
+        "tipo": tipo,
+        "nome": nome,
+        "email": email,
+        "senha": senha,
+        "nome_negocio": nome_negocio,
+        "categoria": categoria,
+    }
+
 
 # Lista onde os usuários ficam guardados enquanto o programa está aberto.
 # Quando o programa fecha, a lista é apagada (ainda não temos banco de dados).

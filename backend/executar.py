@@ -1,4 +1,11 @@
-from rotas.usuarios import cadastrar_usuario, fazer_login
+# =============================================================
+# executar.py
+# Arquivo que INICIA o sistema. No terminal:
+#   cd backend
+#   python3 executar.py     (no Windows: python executar.py)
+# =============================================================
+
+from usuarios import cadastrar_usuario, fazer_login
 
 
 def menu_inicial():

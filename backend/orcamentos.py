@@ -1,3 +1,8 @@
+# =============================================================
+# orcamentos.py
+# Tudo sobre ORÇAMENTOS: pedidos dos clientes e respostas dos prestadores
+# =============================================================
+
 from banco import ler, salvar, ARQ_ORCAMENTOS
 
 CAMPOS = ["id", "email_cliente", "email_prestador", "id_servico", "data_evento",
