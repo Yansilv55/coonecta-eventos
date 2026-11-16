@@ -1,5 +1,5 @@
 TIPOS = ["Cliente", "Prestador"]
-CATEGORIAS = ["Buffet", "Fotografia", "Decoração", "Música", "Espaço para eventos"]
+CATEGORIAS = ["Buffet e alimentação", "Fotografia e filmagem", "Decoração", "Música e entretenimento", "Espaço para eventos", "Outros serviços"]
 
 
 def criar_usuario(tipo, nome, email, senha, nome_negocio="", categoria=""):
