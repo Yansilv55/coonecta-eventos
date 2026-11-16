@@ -31,6 +31,8 @@ coonecta-eventos/
 │   ├── servicos.py
 │   ├── orcamentos.py
 │   ├── avaliacoes.py
+│   ├── portfolio.py
+│   ├── notificacoes.py
 │   └── requirements.txt
 ├── frontend/
 └── README.md
@@ -81,6 +83,22 @@ Tudo sobre as **notas dos clientes**:
 - Cliente **avalia** o prestador (só uma vez por prestador).
 - Prestador **vê suas avaliações** e a **média das notas**.
 
+### `portfolio.py`
+Tudo sobre o **portfólio dos prestadores** (é a "vitrine" de cada fornecedor):
+- Como é um item do portfólio: prestador dono, título do trabalho, descrição e link da foto.
+- Prestador **cadastra** os trabalhos que já fez (ex: "Casamento na praia - decoração completa").
+- Cliente **vê o portfólio** de um fornecedor antes de pedir orçamento, para conhecer a qualidade do trabalho.
+- Como o sistema ainda é no terminal, a foto entra como **link** (ex: link do Instagram ou do Google Drive).
+
+### `notificacoes.py`
+Tudo sobre os **avisos do sistema**, para ninguém perder nada importante:
+- Como é uma notificação: para quem é (e-mail), a mensagem e se já foi lida.
+- O sistema **cria** um aviso quando algo acontece. Exemplos:
+  - Prestador: *"Você recebeu um novo pedido de orçamento."*
+  - Cliente: *"Seu orçamento foi respondido."*
+  - Prestador: *"Você recebeu uma nova avaliação."*
+- As notificações **aparecem logo depois do login**, e o usuário pode vê-las de novo no menu.
+
 ### `requirements.txt`
 Lista de bibliotecas extras que o projeto usar. Por enquanto fica vazio.
 
@@ -108,9 +126,28 @@ No `import` não se escreve o `.py`. E sempre rode o programa **de dentro da pas
 | Cliente | Consultar e pesquisar serviços | `servicos.py` |
 | Cliente | Solicitar orçamento / Meus orçamentos | `orcamentos.py` |
 | Cliente | Avaliar prestador | `avaliacoes.py` |
+| Cliente | Ver portfólio de um fornecedor | `portfolio.py` |
+| Cliente | Minhas notificações | `notificacoes.py` |
 | Prestador | Cadastrar, ver e editar serviços | `servicos.py` |
 | Prestador | Ver e responder orçamentos | `orcamentos.py` |
 | Prestador | Ver avaliações e média | `avaliacoes.py` |
+| Prestador | Cadastrar e ver meu portfólio | `portfolio.py` |
+| Prestador | Minhas notificações | `notificacoes.py` |
+
+---
+
+## Relação com o documento do projeto
+
+Cada arquivo atende a requisitos (RF) e casos de uso (UC) do documento oficial do Coonecta Eventos:
+
+| Arquivo | Requisitos | Casos de uso |
+|---|---|---|
+| `usuarios.py` | RF01 Cadastro, RF02 Login, RF03 Gerenciamento de Perfil, RF06 Contato | UC01, UC02, UC06, UC10 |
+| `servicos.py` | RF04 Visualização de Fornecedores e Serviços, RF05 Pesquisa de Serviços | UC03, UC04 |
+| `orcamentos.py` | RF07 Consulta de Orçamentos | UC07, UC08, UC12, UC13 |
+| `avaliacoes.py` | RF09 Avaliações | UC09, UC14 |
+| `portfolio.py` | RF10 Portfólio | UC05 |
+| `notificacoes.py` | RF08 Notificações | UC11 |
 
 ---
 
