@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coonecta Eventos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--teal:#2A9688;--dk:#0B4F4A;--mid:#1B7F73;--lg:#BFE3DC;--mint:#EAF6F3;--bg:#F3F8F6;--or:#F5A623;--ink:#1D2F2C;--mut:#64807A;--line:#D5E8E3;--foot:#2D3433;--r:14px;
+--fs:'DM Serif Display',Georgia,serif;--fb:'Poppins',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0}
+body{font-family:var(--fb);background:var(--bg);color:var(--ink);line-height:1.5;font-size:15px}
+h1,h2,h3{font-family:var(--fs);font-weight:400;line-height:1.2}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--or);outline-offset:2px}
+.btn{background:var(--teal);color:#fff;border:0;border-radius:10px;padding:10px 20px;font-weight:500;cursor:pointer}
+.btn:hover{background:var(--mid)}.btn.or{background:var(--or)}.btn.or:hover{background:#e0961a}
+.btn.out{background:#fff;color:var(--teal);border:1.5px solid var(--teal)}.btn.out:hover{background:var(--mint)}
+.btn.sm{padding:6px 14px;font-size:.88rem}
+.logo{font-family:var(--fb);font-weight:300;font-size:1.35rem;letter-spacing:.02em;line-height:1;cursor:pointer;background:none;border:0;text-align:left;color:inherit}
+.logo small{display:block;font-size:.62rem;letter-spacing:.2em;font-weight:500;margin-top:2px}
+/* público */
+.pub{display:flex;align-items:center;gap:20px;padding:14px 28px;background:#fff}
+.pub .logo{color:var(--teal)}.pub nav{display:flex;gap:34px;margin:0 auto}
+.pub nav button{background:none;border:0;border-bottom:2px solid transparent;padding:6px 4px;cursor:pointer;color:var(--teal);font-weight:400}
+.pub nav button.on{border-color:var(--or)}
+.pub .acts{display:flex;gap:10px}
+.hero{margin:0 14px;border-radius:14px;min-height:430px;display:flex;align-items:center;padding:40px 8%;color:#fff;background:
+ radial-gradient(circle,rgba(255,236,170,.55) 0 2px,transparent 3px) 0 0/46px 46px,linear-gradient(135deg,#0B4F4A,#1B7F73 60%,#2A9688)}
+.hero h1{font-size:clamp(2rem,4.4vw,3.2rem);max-width:15ch;letter-spacing:.02em}
+.hero p{margin:16px 0 24px;max-width:44ch;font-weight:300;letter-spacing:.03em}
+.hero .btn{background:#fff;color:var(--ink);padding:12px 54px}
+.cats{position:relative;padding:56px 20px 70px;text-align:center;overflow:hidden}
+.cats:before{content:"";position:absolute;left:-210px;bottom:-60px;width:380px;height:380px;border-radius:50%;background:var(--or)}
+.cats>*{position:relative}
+.cats small{color:var(--teal);letter-spacing:.1em;text-transform:uppercase}
+.cats h2{font-size:2rem;margin:6px 0}.cats h2 em{color:var(--or);font-style:normal}
+.cats p{color:var(--mut);font-weight:300;margin-bottom:34px}
+.cgrid{display:grid;grid-template-columns:repeat(3,minmax(0,250px));gap:20px 26px;justify-content:center}
+.cbtn{display:flex;align-items:center;gap:14px;background:#fff;border:1.5px solid var(--teal);border-radius:10px;padding:20px;cursor:pointer;text-align:left}
+.cbtn:hover{background:var(--mint)}
+.ci{width:34px;height:34px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-weight:600;flex:none}
+.cbtn b{display:block;font-weight:500}.cbtn span{font-size:.78rem;color:var(--mut)}
+.band{background:#fff;padding:50px 8%;text-align:center}
+.band h2{font-size:1.8rem;margin-bottom:24px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;text-align:left}
+.three div{background:var(--mint);border-radius:var(--r);padding:22px}.three h3{color:var(--dk);margin-bottom:6px}.three p{color:var(--mut);font-size:.92rem}
+/* app */
+.shell{display:grid;grid-template-columns:232px 1fr;min-height:calc(100vh - 150px)}
+.side{background:var(--teal);color:#fff;padding:22px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;align-self:start;height:100vh}
+.side .logo{margin:0 0 26px 10px;font-size:1.5rem}
+.side button.it{display:flex;align-items:center;gap:12px;background:none;border:0;color:#fff;padding:12px 14px;border-radius:12px;font-family:var(--fs);font-size:1.05rem;cursor:pointer;text-align:left;width:100%}
+.side button.it:hover{background:rgba(255,255,255,.12)}.side button.it.on{background:var(--mid)}
+.side .ic{width:22px;text-align:center;opacity:.95}
+.side .out{margin-top:auto;background:var(--mid)!important}
+.main{min-width:0;display:flex;flex-direction:column}
+.top{display:flex;gap:12px;align-items:center;padding:12px 22px;background:#fff;border-bottom:1px solid var(--teal)}
+.top input,.top select{border:1.5px solid var(--teal);border-radius:10px;padding:8px 16px;background:#fff;min-width:0}
+.top input{flex:1;max-width:560px}
+.top select{background:var(--teal);color:#fff}
+.top .sp{flex:1}
+.ib{position:relative;background:none;border:0;font-size:1.25rem;cursor:pointer;color:var(--or);padding:4px 8px}
+.ib.u{color:var(--teal)}.ib i{position:absolute;top:-2px;right:0;background:#d33;color:#fff;font-size:.62rem;font-style:normal;border-radius:99px;padding:0 5px}
+.pg{padding:22px;display:grid;gap:20px;grid-template-columns:minmax(0,1fr)}
+.pg.two{grid-template-columns:minmax(0,1fr) 190px;align-items:start}
+.pgt{font-size:1.7rem;color:var(--dk)}
+.pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px}
+.pc{background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.cover{height:112px;position:relative;background-size:cover;background-position:center}
+.tag{position:absolute;top:10px;right:0;background:var(--or);color:#fff;font-size:.74rem;padding:3px 14px}
+.pc .bd{padding:12px 16px 14px;display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center}
+.pc h3{font-family:var(--fb);font-weight:600;font-size:.92rem;color:var(--mid)}
+.pc small{color:var(--mut);font-size:.8rem}.pc .lk{background:none;border:0;color:var(--teal);cursor:pointer;justify-self:end;font-weight:500}
+.heart{background:none;border:0;font-size:1.2rem;cursor:pointer;color:#B3BDBB;justify-self:end}.heart.on{color:#e0485a}
+.star{color:var(--or)}
+.catp{background:var(--lg);border-radius:var(--r);padding:10px;display:grid;gap:6px;text-align:center}
+.catp button{background:none;border:0;cursor:pointer;font-size:.82rem;padding:2px;border-radius:8px}
+.catp button.on,.catp button:hover{background:#fff}
+.catp .ph{height:44px;border-radius:10px;margin-bottom:2px}
+.panel{background:#fff;border-radius:var(--r);padding:20px}
+.panel h3{font-family:var(--fb);font-weight:600;color:var(--dk);font-size:1.1rem;margin-bottom:10px}
+.perfil .cover{height:140px;border-radius:12px}
+.ptitle{display:flex;align-items:center;gap:16px}.ptitle h2{font-size:2rem;color:var(--mid);white-space:nowrap}.ptitle hr{flex:1;border:0;border-top:1px solid var(--ink)}
+.pgrid{display:grid;grid-template-columns:1.6fr 1fr;gap:16px}
+.info p{font-size:.86rem;margin:6px 0}
+.pitem{border-top:1px solid var(--line);padding:16px 0}
+.pitem h4{font-weight:600;font-size:1.05rem;letter-spacing:.03em}.pitem .ty{color:var(--or);font-size:.82rem}
+.meta{display:flex;gap:34px;margin:10px 0;flex-wrap:wrap}.meta small{display:block;color:var(--mut)}.meta b{color:var(--mid);letter-spacing:.04em}
+.fotos{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-width:570px;margin-top:10px}.fotos div{height:110px;background-size:cover}
+.svc{display:flex;justify-content:space-between;gap:14px;align-items:center;border-top:1px solid var(--line);padding:12px 0}
+.svc b{font-weight:600}.svc p{color:var(--mut);font-size:.86rem}.price{color:var(--mid);font-weight:600;white-space:nowrap}
+.chip{display:inline-block;background:var(--lg);color:var(--dk);border-radius:99px;padding:2px 12px;font-size:.78rem;font-weight:500}.chip.pend{background:#FFE9BF;color:#9A6200}
+.list{display:grid;gap:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}
+.mut{color:var(--mut)}.empty{text-align:center;padding:40px;color:var(--mut);background:#fff;border:1.5px dashed var(--lg);border-radius:var(--r)}
+/* chat */
+.chat{display:grid;grid-template-columns:290px 1fr;background:#fff;min-height:560px;border-radius:var(--r);overflow:hidden}
+.clist{border-right:1px solid var(--line);padding:16px}.clist h3{font-family:var(--fb);font-weight:600;margin-bottom:10px;color:var(--dk)}
+.conv{display:flex;gap:10px;align-items:center;padding:10px;border-radius:10px;cursor:pointer;border:0;background:none;width:100%;text-align:left;border-left:3px solid transparent}
+.conv.on{background:var(--mint);border-color:var(--teal)}.conv b{font-size:.88rem;display:block;color:var(--dk)}.conv small{color:var(--mut);font-size:.76rem;display:block;max-width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av{width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font-weight:600}
+.cw{display:flex;flex-direction:column;min-width:0}
+.ch{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center}
+.cm{flex:1;padding:20px;overflow:auto;display:flex;flex-direction:column;gap:10px;max-height:440px;background:#F5F6F6}
+.b{max-width:62%;padding:12px 16px;border-radius:10px;color:#fff;font-size:.88rem;background:var(--or);align-self:flex-start}.b.me{background:var(--dk);align-self:flex-end}
+.cf{display:flex;gap:10px;padding:14px;background:var(--teal)}.cf input{flex:1;border:0;border-radius:99px;padding:10px 18px}.cf button{border:0;background:var(--dk);color:#fff;border-radius:50%;width:44px;cursor:pointer;font-size:1.1rem}
+/* forms */
+.auth{max-width:430px;margin:40px auto;background:#fff;border-radius:20px;padding:30px;box-shadow:0 6px 24px rgba(0,0,0,.07)}
+form{display:grid;gap:13px}label{display:grid;gap:4px;font-weight:500;font-size:.88rem}
+label input,label select,label textarea{border:1.5px solid var(--lg);border-radius:10px;padding:9px 13px;background:#fff;font-weight:400}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--mint);border-radius:10px;padding:4px;margin-bottom:14px}.seg button{border:0;background:none;padding:8px;border-radius:8px;cursor:pointer;font-weight:500;color:var(--mut)}.seg button.on{background:#fff;color:var(--teal)}
+.modal{position:fixed;inset:0;background:rgba(11,79,74,.45);display:grid;place-items:center;padding:16px;z-index:50;overflow:auto}
+.box{background:#fff;border-radius:18px;padding:26px;width:min(520px,100%);max-height:92vh;overflow:auto}.box h2{font-size:1.5rem;margin-bottom:12px;color:var(--dk)}
+.stars button{background:none;border:0;font-size:1.8rem;cursor:pointer;color:var(--lg)}.stars button.on{color:var(--or)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--dk);color:#fff;padding:11px 22px;border-radius:99px;z-index:99}
+footer{background:var(--foot);color:#fff;padding:38px 8%;display:grid;grid-template-columns:1.6fr 1fr 1fr 1.2fr;gap:24px;font-size:.82rem;font-weight:300}
+footer h4{color:var(--teal);font-weight:400;margin-bottom:8px;letter-spacing:.05em}footer p{margin:3px 0}footer .logo{color:#fff;margin-bottom:10px}
+@media(max-width:860px){.shell{grid-template-columns:1fr}.side{position:static;height:auto;flex-direction:row;overflow:auto;padding:10px}.side .logo{display:none}.side .out{margin:0}.side button.it{width:auto;white-space:nowrap;font-size:.95rem}
+.pg.two,.pgrid,.chat,.three{grid-template-columns:1fr}.cgrid{grid-template-columns:1fr 1fr}footer{grid-template-columns:1fr 1fr}.pub nav{display:none}.pub{justify-content:space-between}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const CATS=["Buffet","Fotografia","Cerimonial","Decoração","Música","Confeitaria","Filmagem","Espaço para eventos"];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const brl=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const grad=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))%60;return `linear-gradient(135deg,hsl(${150+h} 40% 72%),hsl(${165+h} 50% 38%))`};
+const bg=(img,k)=>img?`background-image:url('${esc(img)}')`:`background-image:${grad(k)}`;
+/* ---------- dados (localStorage; troque por chamadas à API do backend depois) ---------- */
+const P=(email,nome,cat,cidade,insta,sobre)=>({tipo:"Prestador",nome,email,senha:"123",nome_negocio:nome,categoria:cat,cidade,instagram:insta,sobre,capa:""});
+const seed=()=>({
+ usuarios:[{tipo:"Cliente",nome:"Ana Souza",email:"cliente@demo.com",senha:"123"},
+  P("buffet@demo.com","Buffet Sabores da Vida","Buffet","Eunápolis - BA","@Buffet_saboresvida","Atuamos em casamentos, aniversários, formaturas, eventos corporativos e confraternizações, oferecendo cardápios personalizados, ingredientes de qualidade e uma equipe altamente qualificada. Nosso compromisso é proporcionar sabor, organização e excelência em cada detalhe do seu evento."),
+  P("foto@demo.com","Estúdio Bella Fotografia","Fotografia","Eunápolis - BA","@bellafotografia","Fotografia de eventos, ensaios e cobertura completa de casamentos."),
+  P("deco@demo.com","William Decorações","Decoração","Eunápolis - BA","@williamdecor","Decoração completa para festas e eventos corporativos, com flores e iluminação."),
+  P("cer@demo.com","Fernanda Magalhães","Cerimonial","Porto Seguro - BA","@fernandacerimonial","Cerimonialista com experiência em casamentos e formaturas."),
+  P("conf@demo.com","Confeitaria Pão de Mel","Confeitaria","Eunápolis - BA","@paodemel","Bolos, doces finos e mesas de sobremesa para todas as ocasiões.")],
+ servicos:[
+  {id:"s1",email_prestador:"buffet@demo.com",categoria:"Buffet",nome:"Buffet completo para casamento",descricao:"Entrada, prato principal, sobremesa e bebidas.",preco:"8500"},
+  {id:"s2",email_prestador:"buffet@demo.com",categoria:"Buffet",nome:"Coquetel de aniversário",descricao:"Salgados, doces e mesa de frutas para 30 a 60 pessoas.",preco:"2200"},
+  {id:"s3",email_prestador:"foto@demo.com",categoria:"Fotografia",nome:"Cobertura fotográfica de evento",descricao:"6 horas de cobertura e 300 fotos editadas.",preco:"1800"},
+  {id:"s4",email_prestador:"deco@demo.com",categoria:"Decoração",nome:"Decoração completa de festa",descricao:"Painel, mesas, arranjos e iluminação.",preco:"3200"},
+  {id:"s5",email_prestador:"cer@demo.com",categoria:"Cerimonial",nome:"Cerimonial de casamento",descricao:"Assessoria do planejamento ao dia do evento.",preco:"2800"},
+  {id:"s6",email_prestador:"conf@demo.com",categoria:"Confeitaria",nome:"Bolo decorado + 100 doces",descricao:"Bolo de 3 andares e doces finos.",preco:"1500"}],
+ portfolio:[{id:"p1",email_prestador:"buffet@demo.com",titulo:"Casamento de Ana e Mateus",tipo:"Evento - Casamento",data:"2024-11-14",cidade:"Eunápolis-BA",convidados:"250",descricao:"Serviço completo de buffet para cerimônia e recepção com cardápio personalizado, ilha gastronômica e equipe de atendimento.",fotos:[]},
+  {id:"p2",email_prestador:"buffet@demo.com",titulo:"Formatura de Direito",tipo:"Evento - Formatura",data:"2025-03-08",cidade:"Porto Seguro-BA",convidados:"180",descricao:"Jantar de gala com ilha de massas.",fotos:[]}],
+ orcamentos:[],fav:{},
+ avaliacoes:[{email_cliente:"cliente@demo.com",email_prestador:"deco@demo.com",nota:"5",comentario:"Ficou lindo, superou as expectativas!"},{email_cliente:"cliente@demo.com",email_prestador:"buffet@demo.com",nota:"5",comentario:"Comida maravilhosa e equipe atenciosa."}],
+ notificacoes:[],
+ mensagens:[{id:"m1",de:"cliente@demo.com",para:"buffet@demo.com",texto:"Olá! Gostaria de solicitar um orçamento para uma festa de aniversário para aproximadamente 80 pessoas.",ts:1},
+  {id:"m2",de:"buffet@demo.com",para:"cliente@demo.com",texto:"Olá! Será um prazer atendê-lo. Qual a data do evento?",ts:2}]});
+let DB=JSON.parse(localStorage.getItem('coonecta_db2')||'null')||seed();
+const save=()=>localStorage.setItem('coonecta_db2',JSON.stringify(DB));
+let U=JSON.parse(localStorage.getItem('coonecta_user2')||'null');
+let S={view:'home',q:'',cat:'',cid:'',id:'',chat:'',more:false,mode:'login',tipo:'Cliente'},H=[];
+const user=e=>DB.usuarios.find(x=>x.email===e)||{};
+const nome=e=>user(e).nome_negocio||user(e).nome||e;
+const prests=()=>DB.usuarios.filter(u=>u.tipo==='Prestador');
+const avs=e=>DB.avaliacoes.filter(a=>a.email_prestador===e);
+const media=e=>{const a=avs(e);return a.length?a.reduce((s,x)=>s+Number(x.nota),0)/a.length:0};
+const stars=n=>'★'.repeat(Math.round(n))+'☆'.repeat(5-Math.round(n));
+const rate=e=>{const m=media(e);return m?`<span class="star">★</span> <b>${m.toFixed(1)}</b> (${avs(e).length} avaliações)`:'Novo no Coonecta'};
+const notify=(email,msg)=>DB.notificacoes.unshift({id:uid(),email,msg,lida:false});
+const toast=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),2600)};
+const modal=h=>{closeM();const m=document.createElement('div');m.className='modal';m.id='modal';m.onclick=e=>{if(e.target===m)closeM()};m.innerHTML='<div class="box" role="dialog" aria-modal="true">'+h+'</div>';document.body.append(m)};
+const closeM=()=>{const m=$('#modal');if(m)m.remove()};
+const fdate=d=>d?d.split('-').reverse().join('/'):'';
+function go(v,x={}){if(v!==S.view||x.id)H.push({view:S.view,id:S.id,cat:S.cat,q:S.q});Object.assign(S,{view:v,more:false},x);closeM();render();scrollTo(0,0)}
+function voltar(){const p=H.pop();if(!p)return go(U?'home':'home');Object.assign(S,p);render()}
+function logout(){U=null;localStorage.removeItem('coonecta_user2');H=[];S.view='home';render()}
+function setUser(u){U=u;localStorage.setItem('coonecta_user2',JSON.stringify(u))}
+/* ---------- estrutura ---------- */
+const FOOT=`<footer><div><div class="logo">COONECTA<small>EVENTOS</small></div><p>A plataforma que conecta você aos melhores fornecedores de eventos do Brasil — com segurança, avaliações reais e agilidade.</p></div>
+<div><h4>Plataforma</h4><p>Serviços</p><p>Sobre nós</p><p>Mais avaliados</p><p>Feedbacks</p></div>
+<div><h4>Categorias</h4>${CATS.slice(0,6).map(c=>`<p>${c}</p>`).join('')}</div>
+<div><h4>Contato</h4><p>contato@conectaeventos.com.br</p><p>(73) 9 4002-8922</p><p>Eunápolis, Bahia - Brasil</p></div></footer>`;
+function layout(body,two){
+ if(!U){const on=v=>S.view===v?'on':'';return `<div class="pub"><button class="logo" onclick="go('home')">COONECTA<small>EVENTOS</small></button>
+ <nav><button class="${on('home')}" onclick="go('home')">Início</button><button class="${on('explorar')}" onclick="go('explorar',{cat:'',q:''})">Serviços</button><button onclick="go('home')">Sobre</button></nav>
+ <div class="acts"><button class="btn out sm" onclick="go('auth',{mode:'login'})">Entrar</button><button class="btn or sm" onclick="go('auth',{mode:'cad'})">Cadastrar</button></div></div>${body}${FOOT}`}
+ const cli=U.tipo==='Cliente';
+ const it=cli?[['home','⌂','Início'],['pedidos','▭','Meus pedidos'],['fav','♡','Favoritos'],['orc','$','Orçamento'],['msg','✉','Mensagens']]
+  :[['home','⌂','Meus serviços'],['orc','$','Orçamentos'],['pf','▤','Portfólio'],['av','★','Avaliações'],['msg','✉','Mensagens']];
+ const n=DB.notificacoes.filter(x=>x.email===U.email&&!x.lida).length;
+ return `<div class="shell"><aside class="side"><button class="logo" onclick="go('home')">COONECTA<small>EVENTOS</small></button>
+ ${it.map(i=>`<button class="it ${S.view===i[0]?'on':''}" onclick="go('${i[0]}')"><span class="ic">${i[1]}</span>${i[2]}</button>`).join('')}
+ <button class="it out" onclick="logout()"><span class="ic">↪</span>Sair</button></aside>
+ <div class="main"><div class="top"><input id="bq" placeholder="Pesquisar fornecedores, serviços ou eventos..." aria-label="Pesquisar" onkeydown="if(event.key==='Enter')go('explorar',{q:this.value,cat:''})">
+ <span class="sp"></span><button class="ib" aria-label="Notificações" onclick="notifs()">🔔${n?`<i>${n}</i>`:''}</button><button class="ib u" aria-label="Conta" onclick="conta()">👤</button><button class="btn sm" onclick="voltar()">‹ Voltar</button></div>
+ <div class="pg ${two?'two':''}">${body}</div></div></div>${FOOT}`}
+/* ---------- telas públicas ---------- */
+function home(){
+ if(U)return U.tipo==='Cliente'?explorar():meusServicos();
+ return layout(`<section class="hero"><div><h1>Encontre os melhores profissionais para o seu evento!</h1><p>Planeje seu evento com praticidade. Compare serviços, veja avaliações reais e conecte-se com profissionais de confiança da sua região.</p><button class="btn" onclick="go('explorar',{cat:'',q:''})">Explorar serviços</button></div></section>
+ <section class="cats"><small>Categorias</small><h2>O que você está <em>procurando</em>?</h2><p>Encontre o fornecedor ideal para cada detalhe do seu evento em minutos.</p>
+ <div class="cgrid">${CATS.slice(0,6).map(c=>`<button class="cbtn" onclick="go('explorar',{cat:'${c}',q:''})"><span class="ci">${c[0]}</span><div><b>${c}</b><span>Ver profissionais</span></div></button>`).join('')}</div></section>
+ <section class="band"><h2>Como funciona</h2><div class="three"><div><h3>Explore</h3><p>Pesquise fornecedores por nome ou categoria e veja o portfólio de cada um.</p></div><div><h3>Peça orçamento</h3><p>Informe data, convidados e detalhes. O prestador responde na plataforma.</p></div><div><h3>Avalie</h3><p>Depois do evento, deixe sua nota e ajude outros clientes a escolher.</p></div></div></section>`)}
+function pcard(p){const f=(DB.fav[U?.email]||[]).includes(p.email);
+ return `<div class="pc"><div class="cover" style="${bg(p.capa,p.email)}"><span class="tag">${esc(p.categoria)}</span></div><div class="bd"><h3>${esc(p.nome_negocio)}</h3>
+ ${U?`<button class="heart ${f?'on':''}" aria-label="Favoritar" onclick="fav('${p.email}')">${f?'♥':'♡'}</button>`:'<span></span>'}
+ <small>${rate(p.email)}</small><span></span><small>📍 ${esc(p.cidade)}</small><button class="lk" onclick="go('perfil',{id:'${p.email}'})">Ver perfil</button></div></div>`}
+function explorar(){
+ const q=S.q.toLowerCase();const cid=[...new Set(prests().map(p=>p.cidade.split(' - ')[0]))];
+ const l=prests().filter(p=>(!S.cat||p.categoria===S.cat)&&(!S.cid||p.cidade.startsWith(S.cid))&&(!q||(p.nome_negocio+p.categoria+p.sobre+DB.servicos.filter(s=>s.email_prestador===p.email).map(s=>s.nome).join(' ')).toLowerCase().includes(q)));
+ const body=`<div><div class="row between" style="margin-bottom:16px"><h2 class="pgt">${S.cat||'Fornecedores'}</h2>
+ <select aria-label="Cidades" onchange="S.cid=this.value;render()" style="border:1.5px solid var(--teal);border-radius:10px;padding:8px 14px;background:#fff"><option value="">Todas as cidades</option>${cid.map(c=>`<option ${S.cid===c?'selected':''}>${c}</option>`).join('')}</select></div>
+ ${l.length?`<div class="pcards">${l.map(pcard).join('')}</div>`:'<div class="empty">Nenhum fornecedor encontrado.</div>'}</div>
+ <aside class="catp"><button class="${!S.cat?'on':''}" onclick="S.cat='';render()">Todas</button>${CATS.map(c=>`<button class="${S.cat===c?'on':''}" onclick="S.cat='${c}';render()"><div class="ph" style="${bg('',c)}"></div>${c}</button>`).join('')}</aside>`;
+ return layout(U?body:`<div class="pg two" style="padding:28px 8%">${body}</div>`,!!U)}
+function fav(e){const l=DB.fav[U.email]=DB.fav[U.email]||[];const i=l.indexOf(e);i<0?l.push(e):l.splice(i,1);save();render()}
+function favoritos(){const l=prests().filter(p=>(DB.fav[U.email]||[]).includes(p.email));
+ return layout(`<h2 class="pgt">Favoritos</h2>${l.length?`<div class="pcards">${l.map(pcard).join('')}</div>`:'<div class="empty">Toque no coração de um fornecedor para guardá-lo aqui.</div>'}`)}
+/* perfil */
+function perfil(){const p=user(S.id);const pf=DB.portfolio.filter(x=>x.email_prestador===p.email);const sv=DB.servicos.filter(s=>s.email_prestador===p.email);
+ const it=(S.more?pf:pf.slice(0,1)).map(x=>`<div class="pitem"><h4>${esc(x.titulo)}</h4><div class="ty">${esc(x.tipo)}</div>
+ <div class="meta"><div><small>Data</small><b>${fdate(x.data)}</b></div><div><small>Cidade</small><b>${esc(x.cidade)}</b></div><div><small>Convidados</small><b>${esc(x.convidados)}</b></div></div>
+ <small class="mut">Descrição do trabalho</small><p style="max-width:60ch;margin-top:4px">${esc(x.descricao)}</p>
+ <div class="fotos">${[0,1,2].map(i=>`<div style="${bg((x.fotos||[])[i],x.id+i)}"></div>`).join('')}</div></div>`).join('');
+ const body=`<div class="perfil" style="display:grid;gap:16px"><div class="cover" style="${bg(p.capa,p.email)}"></div><div class="ptitle"><h2>${esc(p.nome_negocio)}</h2><hr></div>
+ <div class="pgrid"><div class="panel"><h3>Sobre</h3><p style="font-size:.9rem">${esc(p.sobre||'Este prestador ainda não escreveu uma apresentação.')}</p></div>
+ <div class="panel info"><h3>Informações gerais</h3><p>${rate(p.email)}</p><p>📍 ${esc(p.cidade)}</p><p>💼 ${esc(p.categoria)}</p>${p.instagram?`<p>📷 ${esc(p.instagram)}</p>`:''}
+ <button class="btn sm" style="width:100%;margin-top:8px" onclick="contato('${p.email}')">Entrar em contato</button></div></div>
+ <div class="panel"><h3>Portfólio</h3>${it||'<p class="mut">Ainda sem trabalhos cadastrados.</p>'}${pf.length>1?`<button class="btn out" style="width:100%;max-width:570px;margin-top:10px" onclick="S.more=!S.more;render()">${S.more?'Ver menos':'Ver Mais'}</button>`:''}</div>
+ <div class="panel"><h3>Produtos/serviços</h3>${sv.map(s=>`<div class="svc"><div><b>${esc(s.nome)}</b><p>${esc(s.descricao)}</p></div><div class="row"><span class="price">${brl(s.preco)}</span><button class="btn sm" onclick="pedir('${s.id}')">Pedir orçamento</button></div></div>`).join('')||'<p class="mut">Nenhum serviço cadastrado.</p>'}</div>
+ ${avs(p.email).length?`<div class="panel"><h3>Avaliações</h3>${avs(p.email).map(a=>`<p style="margin:6px 0"><span class="star">${stars(a.nota)}</span> ${esc(a.comentario)} <small class="mut">— ${esc(nome(a.email_cliente))}</small></p>`).join('')}</div>`:''}</div>`;
+ return U?layout(body):layout(`<div style="padding:24px 8%">${body}</div>`)}
+function contato(e){if(!U){toast('Entre para falar com o fornecedor');return go('auth',{mode:'login'})}go('msg',{chat:e})}
+/* auth */
+function auth(){const cad=S.mode==='cad',p=S.tipo==='Prestador';
+ return layout(`<div class="auth"><h2 style="font-size:1.8rem;color:var(--dk)">${cad?'Criar conta':'Entrar'}</h2><p class="mut" style="margin:4px 0 16px">${cad?'Escolha como quer usar o Coonecta.':'Bem-vindo de volta!'}</p>
+ ${cad?`<div class="seg"><button class="${!p?'on':''}" onclick="S.tipo='Cliente';render()">Sou cliente</button><button class="${p?'on':''}" onclick="S.tipo='Prestador';render()">Sou prestador</button></div>`:''}
+ <form onsubmit="${cad?'cadastrar':'entrar'}(event)">${cad?'<label>Nome<input name="nome" required></label>':''}
+ <label>E-mail<input name="email" type="email" required></label><label>Senha<input name="senha" type="password" required></label>
+ ${cad&&p?`<label>Nome do negócio<input name="neg" required></label><label>Categoria<select name="cat">${CATS.map(c=>`<option>${c}</option>`).join('')}</select></label><label>Cidade<input name="cid" placeholder="Eunápolis - BA" required></label><label>Instagram<input name="ig" placeholder="@seunegocio"></label><label>Sobre o negócio<textarea name="sobre" rows="3"></textarea></label>`:''}
+ <button class="btn or">${cad?'Cadastrar':'Entrar'}</button></form>
+ <p class="mut" style="margin-top:14px;font-size:.85rem">${cad?`Já tem conta? <a href="#" onclick="go('auth',{mode:'login'});return false">Entrar</a>`:`Sem conta? <a href="#" onclick="go('auth',{mode:'cad'});return false">Cadastrar</a><br>Demo: cliente@demo.com ou buffet@demo.com · senha 123`}</p></div>`)}
+function entrar(e){e.preventDefault();const f=e.target,u=DB.usuarios.find(x=>x.email===f.email.value.trim().toLowerCase()&&x.senha===f.senha.value);
+ if(!u)return toast('E-mail ou senha incorretos');setUser(u);H=[];S.view='home';render();const n=DB.notificacoes.filter(x=>x.email===u.email&&!x.lida).length;if(n)toast(`Você tem ${n} nova(s) notificação(ões)`)}
+function cadastrar(e){e.preventDefault();const f=e.target,email=f.email.value.trim().toLowerCase();
+ if(DB.usuarios.some(x=>x.email===email))return toast('Este e-mail já está cadastrado');
+ const u={tipo:S.tipo,nome:f.nome.value.trim(),email,senha:f.senha.value};
+ if(S.tipo==='Prestador')Object.assign(u,{nome_negocio:f.neg.value.trim(),categoria:f.cat.value,cidade:f.cid.value,instagram:f.ig.value,sobre:f.sobre.value,capa:''});
+ DB.usuarios.push(u);save();setUser(u);H=[];S.view='home';render();toast('Conta criada!')}
+function conta(){modal(`<h2>${esc(U.nome)}</h2><p class="mut">${esc(U.email)} · ${U.tipo}</p><div class="row" style="margin-top:18px"><button class="btn out" onclick="closeM()">Fechar</button><button class="btn" onclick="logout();closeM()">Sair</button></div>`)}
+function notifs(){const l=DB.notificacoes.filter(x=>x.email===U.email);modal(`<h2>Notificações</h2>${l.length?l.map(n=>`<p style="margin:8px 0">${n.lida?'':'<b style="color:var(--or)">● </b>'}${esc(n.msg)}</p>`).join(''):'<p class="mut">Nada por aqui ainda.</p>'}<button class="btn" style="margin-top:14px" onclick="closeM()">Fechar</button>`);
+ l.forEach(n=>n.lida=true);save();setTimeout(()=>{const b=document.querySelector('.ib i');if(b)b.remove()},0)}
+/* orçamentos */
+function pedir(id){if(!U){toast('Entre como cliente para pedir orçamento');return go('auth',{mode:'login'})}
+ if(U.tipo!=='Cliente')return toast('Somente clientes podem pedir orçamento');const s=DB.servicos.find(x=>x.id===id);
+ modal(`<h2>Pedir orçamento</h2><p class="mut" style="margin-bottom:12px">${esc(s.nome)} · ${esc(nome(s.email_prestador))}</p><form onsubmit="enviarOrc(event,'${id}')">
+ <label>Data do evento<input type="date" name="data" required min="${new Date().toISOString().slice(0,10)}"></label><label>Convidados<input type="number" name="conv" min="1" required></label>
+ <label>Detalhes<textarea name="det" rows="3" placeholder="Conte um pouco sobre o evento"></textarea></label><div class="row"><button class="btn">Enviar pedido</button><button type="button" class="btn out" onclick="closeM()">Cancelar</button></div></form>`)}
+function enviarOrc(e,id){e.preventDefault();const f=e.target,s=DB.servicos.find(x=>x.id===id);
+ DB.orcamentos.push({id:uid(),email_cliente:U.email,email_prestador:s.email_prestador,id_servico:id,data_evento:f.data.value,convidados:f.conv.value,detalhes:f.det.value,status:'Pendente',resposta:''});
+ notify(s.email_prestador,'Você recebeu um novo pedido de orçamento.');save();closeM();toast('Pedido enviado!');go('pedidos')}
+function ocard(o,prov){const s=DB.servicos.find(x=>x.id===o.id_servico)||{};const outro=prov?o.email_cliente:o.email_prestador;
+ const j=DB.avaliacoes.find(a=>a.email_cliente===o.email_cliente&&a.email_prestador===o.email_prestador);
+ return `<div class="panel"><div class="row between"><h3 style="margin:0">${esc(s.nome)}</h3><span class="chip ${o.status==='Pendente'?'pend':''}">${o.status}</span></div>
+ <p class="mut" style="font-size:.86rem">${esc(nome(outro))} · ${fdate(o.data_evento)} · ${esc(o.convidados)} convidados</p>${o.detalhes?`<p style="margin-top:6px">${esc(o.detalhes)}</p>`:''}
+ ${o.resposta?`<p style="margin-top:8px"><b>${prov?'Sua resposta':'Resposta'}:</b> ${esc(o.resposta)}</p>`:''}
+ <div class="row" style="margin-top:10px">${prov&&!o.resposta?`<button class="btn sm" onclick="responder('${o.id}')">Responder</button>`:''}${!prov&&o.resposta&&!j?`<button class="btn sm or" onclick="avaliar('${o.email_prestador}')">Avaliar prestador</button>`:''}${!prov&&j?'<span class="chip">Avaliado</span>':''}<button class="btn out sm" onclick="contato('${outro}')">Mensagem</button></div></div>`}
+function pedidos(){const l=DB.orcamentos.filter(o=>o.email_cliente===U.email);
+ return layout(`<h2 class="pgt">Meus pedidos</h2>${l.length?`<div class="list">${l.map(o=>ocard(o,0)).join('')}</div>`:`<div class="empty">Você ainda não pediu orçamentos.<br><br><button class="btn" onclick="go('explorar',{cat:'',q:''})">Explorar fornecedores</button></div>`}`)}
+function orc(){const cli=U.tipo==='Cliente';const l=DB.orcamentos.filter(o=>cli?(o.email_cliente===U.email&&o.resposta):o.email_prestador===U.email);
+ return layout(`<h2 class="pgt">${cli?'Orçamentos recebidos':'Pedidos de orçamento'}</h2>${l.length?`<div class="list">${l.map(o=>ocard(o,!cli)).join('')}</div>`:`<div class="empty">${cli?'Os orçamentos respondidos pelos prestadores aparecem aqui.':'Nenhum pedido recebido ainda.'}</div>`}`)}
+function responder(id){modal(`<h2>Responder orçamento</h2><form onsubmit="salvarResp(event,'${id}')"><label>Preço (R$)<input name="preco" type="number" min="0" step="0.01" required></label><label>Condições<textarea name="cond" rows="3" required></textarea></label><div class="row"><button class="btn">Enviar resposta</button><button type="button" class="btn out" onclick="closeM()">Cancelar</button></div></form>`)}
+function salvarResp(e,id){e.preventDefault();const o=DB.orcamentos.find(x=>x.id===id),f=e.target;o.status='Respondido';o.resposta=brl(f.preco.value)+' — '+f.cond.value;
+ notify(o.email_cliente,'Seu orçamento foi respondido.');save();closeM();toast('Resposta enviada');render()}
+function avaliar(p){let n=0;modal(`<h2>Avaliar ${esc(nome(p))}</h2><form onsubmit="salvarAv(event,'${p}')"><div class="stars" id="st">${[1,2,3,4,5].map(i=>`<button type="button" data-n="${i}" aria-label="${i} estrelas">★</button>`).join('')}</div><input type="hidden" name="nota"><label>Comentário<textarea name="com" rows="3"></textarea></label><div class="row"><button class="btn">Enviar avaliação</button><button type="button" class="btn out" onclick="closeM()">Cancelar</button></div></form>`);
+ $('#st').onclick=e=>{const b=e.target.closest('button');if(!b)return;n=+b.dataset.n;$('#modal input[name=nota]').value=n;[...$('#st').children].forEach((x,i)=>x.classList.toggle('on',i<n))}}
+function salvarAv(e,p){e.preventDefault();const f=e.target;if(!f.nota.value)return toast('Escolha uma nota de 1 a 5');
+ DB.avaliacoes.push({email_cliente:U.email,email_prestador:p,nota:f.nota.value,comentario:f.com.value});notify(p,'Você recebeu uma nova avaliação.');save();closeM();toast('Obrigado pela avaliação!');render()}
+/* prestador */
+function meusServicos(){const l=DB.servicos.filter(s=>s.email_prestador===U.email);
+ return layout(`<div class="row between"><h2 class="pgt">Meus serviços</h2><div class="row"><button class="btn out" onclick="go('perfil',{id:'${U.email}'})">Ver meu perfil</button><button class="btn" onclick="formSvc()">Cadastrar serviço</button></div></div>
+ ${l.length?`<div class="list">${l.map(s=>`<div class="panel svc" style="border:0"><div><span class="chip">${esc(s.categoria)}</span><br><b>${esc(s.nome)}</b><p>${esc(s.descricao)}</p></div><div class="row"><span class="price">${brl(s.preco)}</span><button class="btn out sm" onclick="formSvc('${s.id}')">Editar</button></div></div>`).join('')}</div>`:'<div class="empty">Você ainda não cadastrou serviços.</div>'}`)}
+function formSvc(id){const s=DB.servicos.find(x=>x.id===id)||{};modal(`<h2>${id?'Editar':'Cadastrar'} serviço</h2><form onsubmit="salvarSvc(event,'${id||''}')"><label>Nome<input name="nome" required value="${esc(s.nome)}"></label><label>Categoria<select name="cat">${CATS.map(c=>`<option ${(s.categoria||U.categoria)===c?'selected':''}>${c}</option>`).join('')}</select></label><label>Descrição<textarea name="desc" rows="3" required>${esc(s.descricao)}</textarea></label><label>Preço (R$)<input name="preco" type="number" min="0" step="0.01" required value="${esc(s.preco)}"></label><div class="row"><button class="btn">Salvar</button><button type="button" class="btn out" onclick="closeM()">Cancelar</button></div></form>`)}
+function salvarSvc(e,id){e.preventDefault();const f=e.target,d={nome:f.nome.value,categoria:f.cat.value,descricao:f.desc.value,preco:f.preco.value};
+ if(id)Object.assign(DB.servicos.find(x=>x.id===id),d);else DB.servicos.push({id:uid(),email_prestador:U.email,...d});save();closeM();toast('Serviço salvo');render()}
+function pfView(){const l=DB.portfolio.filter(p=>p.email_prestador===U.email);
+ return layout(`<div class="row between"><h2 class="pgt">Portfólio</h2><button class="btn" onclick="formPf()">Adicionar trabalho</button></div>${l.length?`<div class="panel">${l.map(x=>`<div class="pitem"><h4>${esc(x.titulo)}</h4><div class="ty">${esc(x.tipo)}</div><div class="meta"><div><small>Data</small><b>${fdate(x.data)}</b></div><div><small>Cidade</small><b>${esc(x.cidade)}</b></div><div><small>Convidados</small><b>${esc(x.convidados)}</b></div></div><p>${esc(x.descricao)}</p></div>`).join('')}</div>`:'<div class="empty">Mostre seus melhores trabalhos para atrair clientes.</div>'}`)}
+function formPf(){modal(`<h2>Adicionar ao portfólio</h2><form onsubmit="salvarPf(event)"><label>Título<input name="t" required></label><label>Tipo de evento<input name="ty" placeholder="Evento - Casamento"></label><label>Data<input type="date" name="d"></label><label>Cidade<input name="c"></label><label>Convidados<input type="number" name="n" min="0"></label><label>Descrição<textarea name="ds" rows="3"></textarea></label><label>Link de uma foto (opcional)<input name="f" type="url"></label><div class="row"><button class="btn">Salvar</button><button type="button" class="btn out" onclick="closeM()">Cancelar</button></div></form>`)}
+function salvarPf(e){e.preventDefault();const f=e.target;DB.portfolio.push({id:uid(),email_prestador:U.email,titulo:f.t.value,tipo:f.ty.value,data:f.d.value,cidade:f.c.value,convidados:f.n.value,descricao:f.ds.value,fotos:f.f.value?[f.f.value]:[]});save();closeM();toast('Trabalho adicionado');render()}
+function avView(){const l=avs(U.email),m=media(U.email);
+ return layout(`<h2 class="pgt">Avaliações</h2><div class="panel"><span class="mut">Média das notas</span><div style="font-family:var(--fs);font-size:2.4rem;color:var(--mid)">${m?m.toFixed(1):'–'} <span class="star" style="font-size:1.4rem">${m?stars(m):''}</span></div><span class="mut">${l.length} avaliação(ões)</span></div>
+ ${l.length?`<div class="list">${l.map(a=>`<div class="panel"><span class="star">${stars(a.nota)}</span> <b>${esc(nome(a.email_cliente))}</b><p>${esc(a.comentario)}</p></div>`).join('')}</div>`:'<div class="empty">Você ainda não recebeu avaliações.</div>'}`)}
+/* mensagens */
+function convs(){const m=DB.mensagens.filter(x=>x.de===U.email||x.para===U.email);const o={};m.forEach(x=>{o[x.de===U.email?x.para:x.de]=x});
+ if(S.chat&&!o[S.chat])o[S.chat]={texto:'Nova conversa',ts:9e15};return Object.entries(o).sort((a,b)=>b[1].ts-a[1].ts)}
+function msg(){const c=convs();if(!S.chat&&c.length)S.chat=c[0][0];const cur=S.chat;
+ const ms=DB.mensagens.filter(x=>(x.de===U.email&&x.para===cur)||(x.de===cur&&x.para===U.email));
+ const av=e=>`<span class="av" style="background:${grad(e).match(/linear-gradient\(135deg,[^,]+,([^)]+\)?)/)?'var(--teal)':'var(--teal)'}">${esc(nome(e)[0])}</span>`;
+ return layout(`<h2 class="pgt">Mensagens</h2><div class="chat"><div class="clist"><h3>Conversas</h3>${c.map(([e,l])=>`<button class="conv ${e===cur?'on':''}" onclick="S.chat='${e}';render()">${av(e)}<span><b>${esc(nome(e))}</b><small>${esc(l.texto)}</small></span></button>`).join('')||'<p class="mut">Nenhuma conversa ainda. Abra o perfil de um fornecedor e toque em "Entrar em contato".</p>'}</div>
+ <div class="cw">${cur?`<div class="ch">${av(cur)}<b style="color:var(--dk)">${esc(nome(cur))}</b></div><div class="cm" id="cm">${ms.map(x=>`<div class="b ${x.de===U.email?'me':''}">${esc(x.texto)}</div>`).join('')||'<p class="mut">Envie a primeira mensagem.</p>'}</div>
+ <form class="cf" style="display:flex" onsubmit="enviar(event)"><input name="t" placeholder="Digite sua mensagem, tire suas dúvidas ou mande inspirações..." aria-label="Mensagem" autocomplete="off"><button aria-label="Enviar">➤</button></form>`:'<div class="empty" style="margin:20px">Selecione uma conversa.</div>'}</div></div>`)}
+function enviar(e){e.preventDefault();const t=e.target.t.value.trim();if(!t)return;DB.mensagens.push({id:uid(),de:U.email,para:S.chat,texto:t,ts:Date.now()});notify(S.chat,'Você recebeu uma nova mensagem de '+nome(U.email)+'.');save();render()}
+/* render */
+function render(){const V={home,explorar,perfil,auth,fav:favoritos,pedidos,orc,pf:pfView,av:avView,msg};
+ if(U&&['auth'].includes(S.view))S.view='home';
+ if(!U&&['fav','pedidos','orc','pf','av','msg'].includes(S.view))S.view='auth';
+ $('#app').innerHTML=V[S.view]();const cm=$('#cm');if(cm)cm.scrollTop=cm.scrollHeight}
+addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+render();
+</script>
+</body>
+</html>
