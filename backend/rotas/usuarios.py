@@ -21,10 +21,30 @@ def buscar_por_email(email):
 def cadastrar_usuario(email=""):
     """Cadastra um novo usuário. Se já vier um e-mail (do login), não pergunta de novo."""
     print("\n--- CADASTRO ---")
+
+    print("Tipo de conta:")
+    print("1. Cliente")
+    print("2. Prestador de serviço")
+    opcao = input("Escolha: ").strip()
+
+    if opcao != "1" and opcao != "2":
+        print("Opção inválida. Cadastro cancelado.")
+        return
+
     nome = input("Nome: ").strip()
+    data_nascimento = input("Data de nascimento (DD/MM/AAAA): ").strip()
     if not email:
         email = input("E-mail: ").strip()
     senha = input("Senha: ").strip()
+    confirmar_senha = input("Confirme a senha: ").strip()
+
+    if not senha:
+        print("Erro: a senha não pode ficar vazia.")
+        return
+
+    if senha != confirmar_senha:
+        print("Erro: as senhas não coincidem.")
+        return
 
     # Regra 1: nenhum campo pode ficar vazio
     if not nome or not email or not senha:
@@ -32,7 +52,7 @@ def cadastrar_usuario(email=""):
         return
 
     # Regra 2: não pode usar ";" (vai separar os campos quando tivermos o .txt)
-    if ";" in nome + email + senha:
+    if ";" in nome + data_nascimento + email + senha:
         print("Erro: não use o caractere ';'.")
         return
 
@@ -41,16 +61,23 @@ def cadastrar_usuario(email=""):
         print("Erro: este e-mail já está cadastrado.")
         return
 
-    print("Tipo de conta:")
-    print("1. Cliente")
-    print("2. Prestador de serviço")
-    opcao = input("Escolha: ").strip()
-
     if opcao == "1":
-        novo = criar_usuario("Cliente", nome, email, senha)
+        novo = criar_usuario("Cliente", nome, email, senha, data_nascimento=data_nascimento)
+        usuarios.append(novo)
+        print("Cadastro realizado com sucesso! Bem-vindo(a) ao Coonecta Eventos,", nome, "!")
     elif opcao == "2":
-        nome_negocio = input("Nome do seu negócio: ").strip()
-        print("Categoria principal:")
+        print("\n--- DADOS DA EMPRESA ---")
+        nome_negocio = input("Nome fantasia: ").strip()
+        razao_social = input("Razão social: ").strip()
+        cpf_cnpj = input("CPF/CNPJ: ").strip()
+        cidade = input("Cidade: ").strip()
+        estado = input("Estado: ").strip()
+
+        if not nome_negocio or not cpf_cnpj or not cidade or not estado:
+            print("Erro: preencha todos os dados da empresa.")
+            return
+
+        print("\nCategoria principal:")
         for i in range(len(CATEGORIAS)):
             print(f"{i + 1}. {CATEGORIAS[i]}")
         escolha = input("Escolha: ").strip()
@@ -58,14 +85,34 @@ def cadastrar_usuario(email=""):
             print("Categoria inválida. Cadastro cancelado.")
             return
         categoria = CATEGORIAS[int(escolha) - 1]
-        novo = criar_usuario("Prestador", nome, email, senha, nome_negocio, categoria)
+
+        instagram = input("Instagram comercial (opcional): ").strip()
+        site = input("Site da empresa (opcional): ").strip()
+
+        novo = criar_usuario(
+            "Prestador de serviço",
+            nome,
+            email,
+            senha,
+            data_nascimento=data_nascimento,
+        )
+        novo.update({
+            "nome_negocio": nome_negocio,
+            "razao_social": razao_social,
+            "cpf_cnpj": cpf_cnpj,
+            "cidade": cidade,
+            "estado": estado,
+            "categoria": categoria,
+            "instagram": instagram,
+            "site": site,
+        })
+        usuarios.append(novo)
+
+        print("Cadastro realizado com sucesso! Bem-vindo(a),", nome_negocio, "!")
+        # enviar o usuário para a página inicial
     else:
         print("Opção inválida. Cadastro cancelado.")
         return
-
-    usuarios.append(novo)
-    print("Cadastro realizado com sucesso! Agora é só fazer login.")
-
 
 def fazer_login():
     """Pede e-mail e senha. Devolve o usuário se der certo, ou None se não der."""
@@ -86,4 +133,5 @@ def fazer_login():
         return None
 
     print(f"\nBem-vindo(a), {usuario['nome']}!")
+    #encaminhar o usuário para a página inicial
     return usuario
