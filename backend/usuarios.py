@@ -1,251 +1,321 @@
 # =============================================================
 # usuarios.py
+# Tudo sobre USUÁRIOS: cadastro (cliente e prestador), login e perfil.
+# Os usuários ficam salvos em dados/usuarios.txt
 # =============================================================
 
-from banco import ler, salvar, ARQ_USUARIOS
+from banco import ler, salvar, pedir_texto, ARQ_USUARIOS
+import servicos
 
-# Campos do usuário, na ordem em que ficam no .txt
-CAMPOS = ["tipo", "nome", "email", "senha", "nome_negocio", "categoria"]
+CAMPOS = ["tipo", "nome", "email", "senha", "telefone", "cpf", "cidade", "bairro",
+          "nome_negocio", "categoria", "anos_experiencia", "cnpj", "instagram", "descricao"]
 
 CLIENTE = "Cliente"
 PRESTADOR = "Prestador"
-CATEGORIAS = ["Buffet", "Fotografia", "Decoração", "Música", "Espaço para eventos"]
 
 
-# -------------------------------------------------------------
-# Ler e salvar
-# -------------------------------------------------------------
+# ================= DADOS E VALIDAÇÕES =================
 
 def todos():
-    """Devolve a lista com todos os usuários cadastrados."""
     return ler(ARQ_USUARIOS, CAMPOS)
 
 
 def guardar(lista):
-    """Salva a lista inteira de usuários no .txt."""
     salvar(ARQ_USUARIOS, CAMPOS, lista)
 
 
-def buscar_por_email(email):
+def buscar(email):
     """Procura um usuário pelo e-mail. Devolve o usuário ou None."""
-    for usuario in todos():
-        if usuario["email"] == email:
-            return usuario
+    for u in todos():
+        if u["email"] == email:
+            return u
     return None
 
 
-# -------------------------------------------------------------
-# Funções que ajudam a validar o que o usuário digita
-# -------------------------------------------------------------
+def cpf_existe(cpf):
+    for u in todos():
+        if u["cpf"] == cpf:
+            return True
+    return False
 
-def texto_valido(texto):
-    """Não pode ficar vazio e não pode ter ';' (ele separa os campos no .txt)."""
-    if texto == "":
-        print("Erro: este campo não pode ficar vazio.")
-        return False
-    if ";" in texto:
-        print("Erro: não use o caractere ';'.")
-        return False
-    return True
+
+def verificar_login(email, senha):
+    """Devolve o usuário se e-mail e senha estiverem certos, senão None."""
+    u = buscar(email)
+    if u != None and u["senha"] == senha:
+        return u
+    return None
+
+
+def so_numeros(texto):
+    """Tira tudo que não é número. Ex: "123.456.789-09" vira "12345678909"."""
+    resultado = ""
+    for letra in texto:
+        if letra.isdigit():
+            resultado = resultado + letra
+    return resultado
 
 
 def email_valido(email):
-    """Confere se o e-mail tem cara de e-mail (tem @ e ponto depois dele)."""
-    if "@" not in email or "." not in email.split("@")[-1]:
-        print("Erro: e-mail inválido. Exemplo: nome@email.com")
+    if " " in email or email.count("@") != 1:
+        return False
+    partes = email.split("@")
+    antes = partes[0]
+    dominio = partes[1]
+    if antes == "":
+        return False
+    if "." not in dominio:
+        return False
+    if dominio.startswith(".") or dominio.endswith("."):
         return False
     return True
 
 
-def pedir_senha():
-    """Pede a senha duas vezes. Devolve a senha ou None se der errado."""
-    senha = input("Senha (mínimo 4 caracteres): ").strip()
-    if len(senha) < 4:
-        print("Erro: a senha precisa ter pelo menos 4 caracteres.")
-        return None
-    if ";" in senha:
-        print("Erro: não use o caractere ';'.")
-        return None
-    confirmar = input("Confirme a senha: ").strip()
-    if senha != confirmar:
-        print("Erro: as senhas não são iguais.")
-        return None
-    return senha
+def telefone_valido(telefone):
+    return telefone.isdigit() and (len(telefone) == 10 or len(telefone) == 11)
 
 
-def escolher_categoria():
-    """Mostra as categorias e devolve a escolhida, ou None se for inválida."""
-    print("Categorias:")
-    for i in range(len(CATEGORIAS)):
-        print(f"{i + 1}. {CATEGORIAS[i]}")
-    escolha = input("Escolha o número: ").strip()
-    if not escolha.isdigit() or not (1 <= int(escolha) <= len(CATEGORIAS)):
-        print("Erro: categoria inválida.")
-        return None
-    return CATEGORIAS[int(escolha) - 1]
+def cpf_valido(cpf):
+    """Confere o CPF pelo cálculo oficial dos dois dígitos verificadores."""
+    if len(cpf) != 11 or not cpf.isdigit():
+        return False
+    if cpf == cpf[0] * 11:  # ex: 11111111111
+        return False
+
+    # Primeiro dígito verificador
+    soma = 0
+    for i in range(9):
+        soma = soma + int(cpf[i]) * (10 - i)
+    digito1 = (soma * 10) % 11
+    if digito1 == 10:
+        digito1 = 0
+    if digito1 != int(cpf[9]):
+        return False
+
+    # Segundo dígito verificador
+    soma = 0
+    for i in range(10):
+        soma = soma + int(cpf[i]) * (11 - i)
+    digito2 = (soma * 10) % 11
+    if digito2 == 10:
+        digito2 = 0
+    return digito2 == int(cpf[10])
 
 
-# -------------------------------------------------------------
-# Cadastro
-# -------------------------------------------------------------
-
-def cadastrar_usuario(email=""):
-    """Pergunta se é Cliente ou Prestador e chama o cadastro certo."""
-    print("\n--- CRIAR CONTA ---")
-    print("1. Sou Cliente (quero contratar serviços)")
-    print("2. Sou Prestador (quero oferecer serviços)")
-    opcao = input("Escolha: ").strip()
-
-    if opcao == "1":
-        cadastrar(CLIENTE, email)
-    elif opcao == "2":
-        cadastrar(PRESTADOR, email)
-    else:
-        print("Opção inválida. Cadastro cancelado.")
+def cnpj_valido(cnpj):
+    return len(cnpj) == 14 and cnpj.isdigit()
 
 
-def cadastrar(tipo, email=""):
-    """Cadastra um Cliente ou um Prestador.
-    Se o e-mail já vier do login, não pergunta de novo."""
-    print(f"\n--- CADASTRO DE {tipo.upper()} ---")
+# ================= TELAS E AÇÕES =================
 
-    nome = input("Nome: ").strip()
-    if not texto_valido(nome):
-        return
+def cadastrar():
+    print("\n--- CADASTRO ---")
+    print("1. Cliente")
+    print("2. Prestador de serviço")
+    while True:
+        opcao = input("Você é: ").strip()
+        if opcao == "1":
+            tipo = CLIENTE
+            break
+        elif opcao == "2":
+            tipo = PRESTADOR
+            break
+        print("Opção inválida! Digite 1 ou 2.")
 
-    if email == "":
-        email = input("E-mail: ").strip().lower()
-    if not texto_valido(email) or not email_valido(email):
-        return
-    if buscar_por_email(email):
-        print("Erro: este e-mail já está cadastrado.")
-        return
+    nome = pedir_texto("Nome completo: ")
 
-    senha = pedir_senha()
-    if senha is None:
-        return
+    while True:
+        email = pedir_texto("E-mail: ").lower()
+        if not email_valido(email):
+            print("E-mail inválido. Exemplo: nome@email.com")
+        elif buscar(email) != None:
+            print("Este e-mail já está cadastrado.")
+        else:
+            break
 
-    # Só o prestador tem nome do negócio e categoria
+    while True:
+        senha = pedir_texto("Senha (mínimo 6 caracteres): ")
+        if len(senha) < 6:
+            print("A senha precisa ter pelo menos 6 caracteres.")
+            continue
+        repetir = input("Repita a senha: ").strip()
+        if repetir != senha:
+            print("As senhas não são iguais. Tente de novo.")
+        else:
+            break
+
+    while True:
+        telefone = so_numeros(pedir_texto("Telefone com DDD (só números): "))
+        if telefone_valido(telefone):
+            break
+        print("Telefone inválido. Digite o DDD + número (10 ou 11 números).")
+
+    while True:
+        cpf = so_numeros(pedir_texto("CPF (só números): "))
+        if not cpf_valido(cpf):
+            print("CPF inválido.")
+        elif cpf_existe(cpf):
+            print("Este CPF já está cadastrado.")
+        else:
+            break
+
+    cidade = pedir_texto("Cidade: ")
+    bairro = pedir_texto("Bairro: ")
+
+    # Campos do negócio (ficam vazios para o cliente)
     nome_negocio = ""
     categoria = ""
+    anos_experiencia = ""
+    cnpj = ""
+    instagram = ""
+    descricao = ""
+
     if tipo == PRESTADOR:
-        nome_negocio = input("Nome do seu negócio: ").strip()
-        if not texto_valido(nome_negocio):
-            return
-        categoria = escolher_categoria()
-        if categoria is None:
-            return
+        print("\n-- Dados do negócio --")
+        nome_negocio = pedir_texto("Nome do negócio: ")
+        categoria = servicos.escolher_categoria()
+
+        while True:
+            anos_experiencia = pedir_texto("Anos de experiência: ")
+            if anos_experiencia.isdigit():
+                break
+            print("Digite só números.")
+
+        while True:
+            cnpj = input("CNPJ (opcional, aperte Enter para pular): ").strip()
+            if cnpj == "":
+                break
+            cnpj = so_numeros(cnpj)
+            if cnpj_valido(cnpj):
+                break
+            print("CNPJ inválido. Ele precisa ter 14 números.")
+
+        instagram = input("Instagram (opcional, aperte Enter para pular): ").strip()
+        descricao = pedir_texto("Fale um pouco sobre o seu trabalho: ")
 
     novo = {
         "tipo": tipo,
         "nome": nome,
         "email": email,
         "senha": senha,
+        "telefone": telefone,
+        "cpf": cpf,
+        "cidade": cidade,
+        "bairro": bairro,
         "nome_negocio": nome_negocio,
         "categoria": categoria,
+        "anos_experiencia": anos_experiencia,
+        "cnpj": cnpj,
+        "instagram": instagram,
+        "descricao": descricao,
     }
 
     lista = todos()
     lista.append(novo)
     guardar(lista)
-    print(f"\n{tipo} cadastrado com sucesso! Agora é só fazer login.")
+    print("Cadastro realizado com sucesso!")
 
 
-# -------------------------------------------------------------
-# Login
-# -------------------------------------------------------------
-
-def fazer_login():
-    """Pede e-mail e senha. Devolve o usuário se der certo, ou None."""
-    print("\n--- LOGIN ---")
+def entrar():
+    print("\n--- ENTRAR ---")
     email = input("E-mail: ").strip().lower()
-    usuario = buscar_por_email(email)
-
-    # E-mail não existe: oferece o cadastro
-    if usuario is None:
-        resposta = input("E-mail não encontrado. Deseja criar uma conta? (s/n): ").strip().lower()
-        if resposta == "s":
-            cadastrar_usuario(email)
+    senha = input("Senha: ").strip()
+    usuario = verificar_login(email, senha)
+    if usuario == None:
+        print("E-mail ou senha incorretos.")
         return None
-
-    # Dá 3 chances para acertar a senha
-    for tentativa in range(3):
-        senha = input("Senha: ").strip()
-        if senha == usuario["senha"]:
-            print(f"\nBem-vindo(a), {usuario['nome']}! ({usuario['tipo']})")
-            return usuario
-        restam = 2 - tentativa
-        if restam > 0:
-            print(f"Senha incorreta. Você tem mais {restam} tentativa(s).")
-
-    print("Senha incorreta 3 vezes. Voltando ao menu.")
-    return None
+    print(f"Bem-vindo(a), {usuario['nome']}!")
+    return usuario
 
 
-# -------------------------------------------------------------
-# Perfil (ver e editar os próprios dados)
-# -------------------------------------------------------------
-
-def ver_perfil(usuario):
+def mostrar_perfil(pessoa):
     print("\n--- MEU PERFIL ---")
-    print(f"Tipo: {usuario['tipo']}")
-    print(f"Nome: {usuario['nome']}")
-    print(f"E-mail: {usuario['email']}")
-    if usuario["tipo"] == PRESTADOR:
-        print(f"Negócio: {usuario['nome_negocio']}")
-        print(f"Categoria: {usuario['categoria']}")
+    print(f"Tipo: {pessoa['tipo']}")
+    print(f"Nome: {pessoa['nome']}")
+    print(f"E-mail: {pessoa['email']}")
+    print(f"Telefone: {pessoa['telefone']}")
+    print(f"CPF: {pessoa['cpf']}")
+    print(f"Cidade: {pessoa['cidade']} | Bairro: {pessoa['bairro']}")
+    if pessoa["tipo"] == PRESTADOR:
+        print(f"Negócio: {pessoa['nome_negocio']}")
+        print(f"Categoria: {pessoa['categoria']}")
+        print(f"Anos de experiência: {pessoa['anos_experiencia']}")
+        if pessoa["cnpj"] != "":
+            print(f"CNPJ: {pessoa['cnpj']}")
+        if pessoa["instagram"] != "":
+            print(f"Instagram: {pessoa['instagram']}")
+        print(f"Sobre o trabalho: {pessoa['descricao']}")
 
 
-def editar_perfil(usuario):
-    """Deixa o usuário mudar nome, senha e (se for prestador) negócio e categoria.
-    O e-mail não muda, porque ele identifica a conta."""
-    print("\n--- EDITAR PERFIL ---")
-    print("Deixe em branco e aperte Enter para não mudar.")
+def editar_perfil(pessoa):
+    """Mostra o perfil e deixa editar. Devolve o usuário (atualizado ou não)."""
+    mostrar_perfil(pessoa)
 
-    novo_nome = input(f"Nome [{usuario['nome']}]: ").strip()
-    if novo_nome != "":
-        if not texto_valido(novo_nome):
-            return
-        usuario["nome"] = novo_nome
+    resposta = input("\nDeseja editar seu perfil? (s/n): ").strip().lower()
+    if resposta != "s":
+        return pessoa
 
-    if usuario["tipo"] == PRESTADOR:
-        novo_negocio = input(f"Nome do negócio [{usuario['nome_negocio']}]: ").strip()
-        if novo_negocio != "":
-            if not texto_valido(novo_negocio):
-                return
-            usuario["nome_negocio"] = novo_negocio
+    print("\nDeixe em branco e aperte Enter para manter o valor atual.")
+    print("(E-mail e CPF não podem ser alterados.)")
 
-        mudar = input(f"Categoria atual: {usuario['categoria']}. Deseja mudar? (s/n): ").strip().lower()
-        if mudar == "s":
-            categoria = escolher_categoria()
-            if categoria is None:
-                return
-            usuario["categoria"] = categoria
+    novo = input(f"Nome [{pessoa['nome']}]: ").strip()
+    if novo != "":
+        pessoa["nome"] = novo
 
-    mudar_senha = input("Deseja mudar a senha? (s/n): ").strip().lower()
-    if mudar_senha == "s":
-        atual = input("Senha atual: ").strip()
-        if atual != usuario["senha"]:
-            print("Erro: senha atual incorreta.")
-            return
-        nova = pedir_senha()
-        if nova is None:
-            return
-        usuario["senha"] = nova
+    while True:
+        novo = input(f"Telefone [{pessoa['telefone']}]: ").strip()
+        if novo == "":
+            break
+        novo = so_numeros(novo)
+        if telefone_valido(novo):
+            pessoa["telefone"] = novo
+            break
+        print("Telefone inválido. Digite o DDD + número (10 ou 11 números).")
 
-    # Troca o usuário antigo pelo atualizado na lista e salva
+    novo = input(f"Cidade [{pessoa['cidade']}]: ").strip()
+    if novo != "":
+        pessoa["cidade"] = novo
+
+    novo = input(f"Bairro [{pessoa['bairro']}]: ").strip()
+    if novo != "":
+        pessoa["bairro"] = novo
+
+    while True:
+        novo = input("Nova senha (Enter para manter): ").strip()
+        if novo == "":
+            break
+        if len(novo) >= 6:
+            pessoa["senha"] = novo
+            break
+        print("A senha precisa ter pelo menos 6 caracteres.")
+
+    if pessoa["tipo"] == PRESTADOR:
+        novo = input(f"Nome do negócio [{pessoa['nome_negocio']}]: ").strip()
+        if novo != "":
+            pessoa["nome_negocio"] = novo
+
+        while True:
+            novo = input(f"Anos de experiência [{pessoa['anos_experiencia']}]: ").strip()
+            if novo == "":
+                break
+            if novo.isdigit():
+                pessoa["anos_experiencia"] = novo
+                break
+            print("Digite só números.")
+
+        novo = input(f"Instagram [{pessoa['instagram']}]: ").strip()
+        if novo != "":
+            pessoa["instagram"] = novo
+
+        novo = input(f"Sobre o trabalho [{pessoa['descricao']}]: ").strip()
+        if novo != "":
+            pessoa["descricao"] = novo
+
+    # Troca o usuário antigo pelo atualizado e salva
     lista = todos()
     for i in range(len(lista)):
-        if lista[i]["email"] == usuario["email"]:
-            lista[i] = usuario
+        if lista[i]["email"] == pessoa["email"]:
+            lista[i] = pessoa
     guardar(lista)
-    print("Perfil atualizado com sucesso!")
-
-
-def listar_prestadores():
-    """Devolve só os usuários que são prestadores (útil para serviços e avaliações)."""
-    lista = []
-    for usuario in todos():
-        if usuario["tipo"] == PRESTADOR:
-            lista.append(usuario)
-    return lista
+    print("Perfil atualizado!")
+    return pessoa

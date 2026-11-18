@@ -5,7 +5,13 @@ Projeto universitário (ADS). Sistema que conecta **clientes** que vão fazer um
 - **Cliente:** consulta e pesquisa serviços, pede orçamento, acompanha seus orçamentos e avalia prestadores.
 - **Prestador:** cadastra e edita seus serviços, recebe e responde orçamentos e vê as avaliações que recebeu.
 
----
+
+
+
+> Os arquivos ainda estão **vazios**. Este documento explica o que cada um vai fazer, para o time saber onde escrever cada parte.carol
+
+testando
+oi
 
 ## Como rodar
 
@@ -18,7 +24,8 @@ python3 executar.py
 
 No Windows, use `python executar.py` (ou `py executar.py`).
 
----
+
+
 
 ## Estrutura do projeto
 
