@@ -10,6 +10,8 @@ import servicos
 import orcamentos
 import avaliacoes
 import notificacoes
+import portfolio
+
 
 def mostrar_titulo(texto):
     """Mostra um título centralizado entre duas linhas de '='."""
@@ -21,7 +23,8 @@ def mostrar_titulo(texto):
 def mostrar_secao(nome):
     """Mostra o nome de um grupo de opções dentro do menu."""
     print(f"\n  -- {nome} --")
-    
+
+
 def abrir_area(pessoa):
     """Leva o usuário para a tela principal certa, de acordo com o tipo."""
     if pessoa["tipo"] == usuarios.CLIENTE:
@@ -30,6 +33,7 @@ def abrir_area(pessoa):
         menu_prestador(pessoa)
     else:
         print("Tipo de usuário desconhecido. Fale com o suporte.")
+
 
 def menu_inicial():
     criar_arquivos()
@@ -71,15 +75,16 @@ def menu_cliente(pessoa):
         print("   1. Ver serviços")
         print("   2. Buscar serviços")
         print("   3. Ver avaliações de um serviço")
+        print("   4. Ver portfólio de um fornecedor")
         mostrar_secao("Orçamentos")
-        print("   4. Pedir orçamento")
-        print("   5. Meus orçamentos")
+        print("   5. Pedir orçamento")
+        print("   6. Meus orçamentos")
         mostrar_secao("Avaliações e avisos")
-        print("   6. Avaliar um prestador")
-        print("   7. Minhas notificações")
+        print("   7. Avaliar um prestador")
+        print("   8. Minhas notificações")
         mostrar_secao("Minha conta")
-        print("   8. Meu perfil")
-        print("   9. Sair da conta")
+        print("   9. Meu perfil")
+        print("  10. Sair da conta")
         print("-" * 40)
         opcao = input("Escolha uma opção: ").strip()
 
@@ -90,16 +95,18 @@ def menu_cliente(pessoa):
         elif opcao == "3":
             avaliacoes.ver_de_um_servico()
         elif opcao == "4":
-            orcamentos.pedir(pessoa)
+            portfolio.ver_de_um_prestador()
         elif opcao == "5":
-            orcamentos.meus_pedidos(pessoa)
+            orcamentos.pedir(pessoa)
         elif opcao == "6":
-            avaliacoes.avaliar(pessoa)
+            orcamentos.meus_pedidos(pessoa)
         elif opcao == "7":
-            notificacoes.minhas(pessoa)
+            avaliacoes.avaliar(pessoa)
         elif opcao == "8":
-            pessoa = usuarios.editar_perfil(pessoa)
+            notificacoes.minhas(pessoa)
         elif opcao == "9":
+            pessoa = usuarios.editar_perfil(pessoa)
+        elif opcao == "10":
             print("Saindo da conta...")
             break
         else:
@@ -117,15 +124,18 @@ def menu_prestador(pessoa):
         print("   2. Meus serviços")
         print("   3. Editar serviço")
         print("   4. Excluir serviço")
+        mostrar_secao("Portfólio")
+        print("   5. Adicionar trabalho ao portfólio")
+        print("   6. Meu portfólio")
         mostrar_secao("Orçamentos")
-        print("   5. Ver pedidos de orçamento")
-        print("   6. Responder pedido")
+        print("   7. Ver pedidos de orçamento")
+        print("   8. Responder pedido")
         mostrar_secao("Avaliações e avisos")
-        print("   7. Minhas avaliações")
-        print("   8. Minhas notificações")
+        print("   9. Minhas avaliações")
+        print("  10. Minhas notificações")
         mostrar_secao("Minha conta")
-        print("   9. Meu perfil")
-        print("  10. Sair da conta")
+        print("  11. Meu perfil")
+        print("  12. Sair da conta")
         print("-" * 40)
         opcao = input("Escolha uma opção: ").strip()
 
@@ -138,16 +148,20 @@ def menu_prestador(pessoa):
         elif opcao == "4":
             servicos.excluir(pessoa)
         elif opcao == "5":
-            orcamentos.pedidos_recebidos(pessoa)
+            portfolio.cadastrar(pessoa)
         elif opcao == "6":
-            orcamentos.responder(pessoa)
+            portfolio.meu(pessoa)
         elif opcao == "7":
-            avaliacoes.minhas(pessoa)
+            orcamentos.pedidos_recebidos(pessoa)
         elif opcao == "8":
-            notificacoes.minhas(pessoa)
+            orcamentos.responder(pessoa)
         elif opcao == "9":
-            pessoa = usuarios.editar_perfil(pessoa)
+            avaliacoes.minhas(pessoa)
         elif opcao == "10":
+            notificacoes.minhas(pessoa)
+        elif opcao == "11":
+            pessoa = usuarios.editar_perfil(pessoa)
+        elif opcao == "12":
             print("Saindo da conta...")
             break
         else:
