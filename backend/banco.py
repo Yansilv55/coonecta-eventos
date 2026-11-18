@@ -14,13 +14,14 @@ ARQ_SERVICOS = os.path.join(PASTA, "servicos.txt")
 ARQ_ORCAMENTOS = os.path.join(PASTA, "orcamentos.txt")
 ARQ_AVALIACOES = os.path.join(PASTA, "avaliacoes.txt")
 ARQ_NOTIFICACOES = os.path.join(PASTA, "notificacoes.txt")
+ARQ_PORTFOLIO = os.path.join(PASTA, "portfolio.txt")
 
 
 def criar_arquivos():
     """Cria a pasta dados e os 4 arquivos vazios, se ainda não existirem."""
     if not os.path.exists(PASTA):
         os.makedirs(PASTA)
-    for arquivo in [ARQ_USUARIOS, ARQ_SERVICOS, ARQ_ORCAMENTOS, ARQ_AVALIACOES, ARQ_NOTIFICACOES]:
+    for arquivo in [ARQ_USUARIOS, ARQ_SERVICOS, ARQ_ORCAMENTOS, ARQ_AVALIACOES, ARQ_NOTIFICACOES, ARQ_PORTFOLIO]:
         if not os.path.exists(arquivo):
             f = open(arquivo, "w", encoding="utf-8")
             f.close()
