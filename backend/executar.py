@@ -10,6 +10,7 @@ import servicos
 import orcamentos
 import avaliacoes
 import notificacoes
+import portfolio
 
 
 def menu_inicial():
@@ -56,7 +57,8 @@ def menu_cliente(pessoa):
         print("6. Avaliar um prestador")
         print("7. Minhas notificações")
         print("8. Meu perfil")
-        print("9. Sair da conta")
+        print("9. Ver portfólio de um fornecedor")
+        print("10. Sair da conta")
         opcao = input("Escolha uma opção: ").strip()
 
         if opcao == "1":
@@ -76,6 +78,8 @@ def menu_cliente(pessoa):
         elif opcao == "8":
             pessoa = usuarios.editar_perfil(pessoa)
         elif opcao == "9":
+            portfolio.ver_de_um_prestador()
+        elif opcao == "10":
             print("Saindo da conta...")
             break
         else:
@@ -96,7 +100,9 @@ def menu_prestador(pessoa):
         print("7. Minhas avaliações")
         print("8. Minhas notificações")
         print("9. Meu perfil")
-        print("10. Sair da conta")
+        print("10. Adicionar trabalho ao portfólio")
+        print("11. Meu portfólio")
+        print("12. Sair da conta")
         opcao = input("Escolha uma opção: ").strip()
 
         if opcao == "1":
@@ -118,6 +124,10 @@ def menu_prestador(pessoa):
         elif opcao == "9":
             pessoa = usuarios.editar_perfil(pessoa)
         elif opcao == "10":
+            portfolio.cadastrar(pessoa)
+        elif opcao == "11":
+            portfolio.meu(pessoa)
+        elif opcao == "12":    
             print("Saindo da conta...")
             break
         else:
