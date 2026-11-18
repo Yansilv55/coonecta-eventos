@@ -1,11 +1,13 @@
 # =============================================================
 # usuarios.py
-# Tudo sobre USUÁRIOS: cadastro (cliente e prestador), login e perfil.
+# Tudo sobre USUÁRIOS: cadastro (cliente e prestador), login,
+# recuperação de senha e perfil.
 # Os usuários ficam salvos em dados/usuarios.txt
 # =============================================================
 
 from banco import ler, salvar, pedir_texto, ARQ_USUARIOS
 import servicos
+import notificacoes
 
 CAMPOS = ["tipo", "nome", "email", "senha", "telefone", "cpf", "cidade", "bairro",
           "nome_negocio", "categoria", "anos_experiencia", "cnpj", "instagram", "descricao"]
@@ -30,6 +32,15 @@ def buscar(email):
         if u["email"] == email:
             return u
     return None
+
+
+def atualizar(pessoa):
+    """Troca o usuário antigo pelo atualizado (mesmo e-mail) e salva."""
+    lista = todos()
+    for i in range(len(lista)):
+        if lista[i]["email"] == pessoa["email"]:
+            lista[i] = pessoa
+    guardar(lista)
 
 
 def cpf_existe(cpf):
@@ -79,7 +90,7 @@ def cpf_valido(cpf):
     """Confere o CPF pelo cálculo oficial dos dois dígitos verificadores."""
     if len(cpf) != 11 or not cpf.isdigit():
         return False
-    if cpf == cpf[0] * 11:  # ex: 11111111111
+    if cpf == cpf[0] * 11:  
         return False
 
     # Primeiro dígito verificador
@@ -108,7 +119,24 @@ def cnpj_valido(cnpj):
 
 # ================= TELAS E AÇÕES =================
 
+def pedir_senha():
+    """Pede a senha (mínimo 6) e a repetição. Só sai quando as duas forem iguais.
+    É usada no cadastro, na recuperação de senha e na edição do perfil."""
+    while True:
+        senha = pedir_texto("Senha (mínimo 6 caracteres): ")
+        if len(senha) < 6:
+            print("A senha precisa ter pelo menos 6 caracteres.")
+            continue
+        repetir = input("Repita a senha: ").strip()
+        if repetir != senha:
+            print("As senhas não são iguais. Tente de novo.")
+        else:
+            return senha
+
+
 def cadastrar():
+    """Cadastra um Cliente ou um Prestador.
+    Devolve o usuário criado, para ele já entrar na conta."""
     print("\n--- CADASTRO ---")
     print("1. Cliente")
     print("2. Prestador de serviço")
@@ -133,16 +161,7 @@ def cadastrar():
         else:
             break
 
-    while True:
-        senha = pedir_texto("Senha (mínimo 6 caracteres): ")
-        if len(senha) < 6:
-            print("A senha precisa ter pelo menos 6 caracteres.")
-            continue
-        repetir = input("Repita a senha: ").strip()
-        if repetir != senha:
-            print("As senhas não são iguais. Tente de novo.")
-        else:
-            break
+    senha = pedir_senha()
 
     while True:
         telefone = so_numeros(pedir_texto("Telefone com DDD (só números): "))
@@ -213,19 +232,53 @@ def cadastrar():
     lista = todos()
     lista.append(novo)
     guardar(lista)
+
+    # Notificação de boas-vindas (aparece logo ao entrar na área principal)
+    if tipo == PRESTADOR:
+        notificacoes.criar(email, "Bem-vindo(a) ao Coonecta Eventos! Comece cadastrando seu primeiro serviço.")
+    else:
+        notificacoes.criar(email, "Bem-vindo(a) ao Coonecta Eventos! Veja os serviços e peça seu primeiro orçamento.")
+
     print("Cadastro realizado com sucesso!")
+    print(f"Bem-vindo(a), {nome}!")
+    return novo
 
 
 def entrar():
+    """Pede e-mail e senha. Devolve o usuário se der certo, ou None.
+    Se errar, oferece a recuperação de senha."""
     print("\n--- ENTRAR ---")
     email = input("E-mail: ").strip().lower()
     senha = input("Senha: ").strip()
     usuario = verificar_login(email, senha)
     if usuario == None:
         print("E-mail ou senha incorretos.")
+        resposta = input("Esqueceu sua senha? (s/n): ").strip().lower()
+        if resposta == "s":
+            recuperar_senha()
         return None
     print(f"Bem-vindo(a), {usuario['nome']}!")
     return usuario
+
+
+def recuperar_senha():
+    """Cria uma senha nova depois de confirmar e-mail, CPF e telefone."""
+    print("\n--- RECUPERAR SENHA ---")
+    print("Para sua segurança, confirme os dados do seu cadastro.")
+    email = pedir_texto("E-mail: ").lower()
+    cpf = so_numeros(pedir_texto("CPF: "))
+    telefone = so_numeros(pedir_texto("Telefone com DDD: "))
+
+    usuario = buscar(email)
+    if usuario == None or usuario["cpf"] != cpf or usuario["telefone"] != telefone:
+        print("Os dados não conferem com nenhum cadastro.")
+        return
+
+    print("Dados confirmados! Crie sua nova senha.")
+    usuario["senha"] = pedir_senha()
+    atualizar(usuario)
+    notificacoes.criar(email, "Sua senha foi alterada. Se não foi você, recupere a senha de novo.")
+    print("Senha alterada! Agora você já pode entrar com a nova senha.")
 
 
 def mostrar_perfil(pessoa):
@@ -280,15 +333,6 @@ def editar_perfil(pessoa):
     if novo != "":
         pessoa["bairro"] = novo
 
-    while True:
-        novo = input("Nova senha (Enter para manter): ").strip()
-        if novo == "":
-            break
-        if len(novo) >= 6:
-            pessoa["senha"] = novo
-            break
-        print("A senha precisa ter pelo menos 6 caracteres.")
-
     if pessoa["tipo"] == PRESTADOR:
         novo = input(f"Nome do negócio [{pessoa['nome_negocio']}]: ").strip()
         if novo != "":
@@ -311,11 +355,15 @@ def editar_perfil(pessoa):
         if novo != "":
             pessoa["descricao"] = novo
 
-    # Troca o usuário antigo pelo atualizado e salva
-    lista = todos()
-    for i in range(len(lista)):
-        if lista[i]["email"] == pessoa["email"]:
-            lista[i] = pessoa
-    guardar(lista)
+    # Para trocar a senha, precisa confirmar a senha atual
+    resposta = input("Deseja mudar a senha? (s/n): ").strip().lower()
+    if resposta == "s":
+        atual = input("Senha atual: ").strip()
+        if atual == pessoa["senha"]:
+            pessoa["senha"] = pedir_senha()
+        else:
+            print("Senha atual incorreta. A senha não foi alterada.")
+
+    atualizar(pessoa)
     print("Perfil atualizado!")
     return pessoa

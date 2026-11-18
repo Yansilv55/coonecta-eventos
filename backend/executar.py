@@ -11,6 +11,25 @@ import orcamentos
 import avaliacoes
 import notificacoes
 
+def mostrar_titulo(texto):
+    """Mostra um título centralizado entre duas linhas de '='."""
+    print("\n" + "=" * 40)
+    print(f"{texto:^40}")
+    print("=" * 40)
+
+
+def mostrar_secao(nome):
+    """Mostra o nome de um grupo de opções dentro do menu."""
+    print(f"\n  -- {nome} --")
+    
+def abrir_area(pessoa):
+    """Leva o usuário para a tela principal certa, de acordo com o tipo."""
+    if pessoa["tipo"] == usuarios.CLIENTE:
+        menu_cliente(pessoa)
+    elif pessoa["tipo"] == usuarios.PRESTADOR:
+        menu_prestador(pessoa)
+    else:
+        print("Tipo de usuário desconhecido. Fale com o suporte.")
 
 def menu_inicial():
     criar_arquivos()
@@ -26,14 +45,13 @@ def menu_inicial():
         opcao = input("Escolha uma opção: ").strip()
 
         if opcao == "1":
-            usuarios.cadastrar()
+            pessoa = usuarios.cadastrar()
+            if pessoa != None:
+                abrir_area(pessoa)
         elif opcao == "2":
             pessoa = usuarios.entrar()
             if pessoa != None:
-                if pessoa["tipo"] == usuarios.CLIENTE:
-                    menu_cliente(pessoa)
-                else:
-                    menu_prestador(pessoa)
+                abrir_area(pessoa)
         elif opcao == "3":
             servicos.listar_todos()
         elif opcao == "4":
@@ -47,16 +65,22 @@ def menu_cliente(pessoa):
     notificacoes.mostrar_novas(pessoa)
 
     while True:
-        print(f"\n=== ÁREA DO CLIENTE ({pessoa['nome']}) ===")
-        print("1. Ver serviços")
-        print("2. Buscar serviços")
-        print("3. Ver avaliações de um serviço")
-        print("4. Pedir orçamento")
-        print("5. Meus orçamentos")
-        print("6. Avaliar um prestador")
-        print("7. Minhas notificações")
-        print("8. Meu perfil")
-        print("9. Sair da conta")
+        mostrar_titulo("ÁREA DO CLIENTE")
+        print(f"{'Olá, ' + pessoa['nome'] + '!':^40}")
+        mostrar_secao("Serviços")
+        print("   1. Ver serviços")
+        print("   2. Buscar serviços")
+        print("   3. Ver avaliações de um serviço")
+        mostrar_secao("Orçamentos")
+        print("   4. Pedir orçamento")
+        print("   5. Meus orçamentos")
+        mostrar_secao("Avaliações e avisos")
+        print("   6. Avaliar um prestador")
+        print("   7. Minhas notificações")
+        mostrar_secao("Minha conta")
+        print("   8. Meu perfil")
+        print("   9. Sair da conta")
+        print("-" * 40)
         opcao = input("Escolha uma opção: ").strip()
 
         if opcao == "1":
@@ -71,7 +95,7 @@ def menu_cliente(pessoa):
             orcamentos.meus_pedidos(pessoa)
         elif opcao == "6":
             avaliacoes.avaliar(pessoa)
-        elif opcao == "7": 
+        elif opcao == "7":
             notificacoes.minhas(pessoa)
         elif opcao == "8":
             pessoa = usuarios.editar_perfil(pessoa)
@@ -86,17 +110,23 @@ def menu_prestador(pessoa):
     notificacoes.mostrar_novas(pessoa)
 
     while True:
-        print(f"\n=== ÁREA DO PRESTADOR ({pessoa['nome_negocio']}) ===")
-        print("1. Cadastrar serviço")
-        print("2. Meus serviços")
-        print("3. Editar serviço")
-        print("4. Excluir serviço")
-        print("5. Ver pedidos de orçamento")
-        print("6. Responder pedido")
-        print("7. Minhas avaliações")
-        print("8. Minhas notificações")
-        print("9. Meu perfil")
-        print("10. Sair da conta")
+        mostrar_titulo("ÁREA DO PRESTADOR")
+        print(f"{'Negócio: ' + pessoa['nome_negocio']:^40}")
+        mostrar_secao("Serviços")
+        print("   1. Cadastrar serviço")
+        print("   2. Meus serviços")
+        print("   3. Editar serviço")
+        print("   4. Excluir serviço")
+        mostrar_secao("Orçamentos")
+        print("   5. Ver pedidos de orçamento")
+        print("   6. Responder pedido")
+        mostrar_secao("Avaliações e avisos")
+        print("   7. Minhas avaliações")
+        print("   8. Minhas notificações")
+        mostrar_secao("Minha conta")
+        print("   9. Meu perfil")
+        print("  10. Sair da conta")
+        print("-" * 40)
         opcao = input("Escolha uma opção: ").strip()
 
         if opcao == "1":
@@ -113,7 +143,7 @@ def menu_prestador(pessoa):
             orcamentos.responder(pessoa)
         elif opcao == "7":
             avaliacoes.minhas(pessoa)
-        elif opcao == "8": 
+        elif opcao == "8":
             notificacoes.minhas(pessoa)
         elif opcao == "9":
             pessoa = usuarios.editar_perfil(pessoa)
