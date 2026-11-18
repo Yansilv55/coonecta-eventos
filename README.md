@@ -5,15 +5,27 @@ Projeto universitário (ADS). Sistema que conecta **clientes** que vão fazer um
 - **Cliente:** consulta e pesquisa serviços, pede orçamento, acompanha seus orçamentos e avalia prestadores.
 - **Prestador:** cadastra e edita seus serviços, recebe e responde orçamentos e vê as avaliações que recebeu.
 
-> Os arquivos ainda estão **vazios**. Este documento explica o que cada um vai fazer, para o time saber onde escrever cada parte.
+
+
 
 > Os arquivos ainda estão **vazios**. Este documento explica o que cada um vai fazer, para o time saber onde escrever cada parte.carol
 
 testando
 oi
 
-carlos )!
----
+## Como rodar
+
+Abra o terminal na pasta do projeto e digite:
+
+```bash
+cd backend
+python3 executar.py
+```
+
+No Windows, use `python executar.py` (ou `py executar.py`).
+
+
+
 
 ## Estrutura do projeto
 
@@ -22,178 +34,134 @@ coonecta-eventos/
 ├── backend/
 │   ├── executar.py
 │   ├── banco.py
-│   ├── modelos/
-│   │   ├── usuario.py
-│   │   ├── servico.py
-│   │   ├── orcamento.py
-│   │   └── avaliacao.py
-│   ├── rotas/
-│   │   ├── usuarios.py
-│   │   ├── servicos.py
-│   │   ├── orcamentos.py
-│   │   └── avaliacoes.py
+│   ├── usuarios.py
+│   ├── servicos.py
+│   ├── orcamentos.py
+│   ├── avaliacoes.py
+│   ├── portfolio.py
+│   ├── notificacoes.py
 │   └── requirements.txt
 ├── frontend/
 └── README.md
 ```
 
+**A regra é simples: cada assunto tem um arquivo, e tudo sobre aquele assunto fica nele.**
+
 ---
 
-## backend/
+## Pastas
 
-É a "parte de trás" do sistema: onde ficam as **regras** (o que pode e o que não pode) e os **dados** (usuários, serviços, orçamentos e avaliações).
+| Pasta | Responsável por |
+|---|---|
+| `backend/` | Todo o sistema: o menu, as regras e os dados. É onde a gente trabalha agora. |
+| `frontend/` | As telas visuais do sistema. **Vai ser feita mais para frente**, por enquanto fica vazia. |
+
+---
+
+## Arquivos da pasta `backend/`
 
 ### `executar.py`
-Arquivo que **inicia o sistema**. É o único que a gente roda no terminal (`python3 executar.py`). Ele junta todas as outras partes e as coloca para funcionar.
+É o arquivo que **liga o sistema**. Mostra o menu inicial (Entrar, Criar conta, Ver serviços, Sair) e chama as funções dos outros arquivos. **É o único que você roda.**
 
 ### `banco.py`
-Faz a **conexão com o banco de dados**, o lugar onde as informações ficam guardadas. Os outros arquivos usam o `banco.py` sempre que precisam salvar ou buscar alguma coisa.
-
-### `requirements.txt`
-Lista das **bibliotecas externas** que o projeto usa. Quem baixar o projeto instala todas de uma vez com:
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## backend/modelos/
-
-Cada arquivo define **como uma informação é guardada**: quais campos ela tem. Pense em cada modelo como uma tabela de planilha.
-
-### `usuario.py`
-Guarda as pessoas cadastradas no sistema.
-- Campos: tipo (Cliente ou Prestador), nome, e-mail, senha.
-- Só para prestador: nome do negócio e categoria principal.
-
-### `servico.py`
-Guarda os serviços que os prestadores oferecem.
-- Campos: prestador dono do serviço, categoria, nome do serviço, descrição e preço base.
-- Categorias permitidas: Buffet, Fotografia, Decoração, Música e Espaço para eventos.
-
-### `orcamento.py`
-Guarda os pedidos de orçamento que os clientes fazem.
-- Campos: cliente que pediu, serviço escolhido, detalhes do evento (data, local, número de convidados), status e resposta do prestador.
-- Status: **Pendente** (aguardando o prestador) ou **Respondido**.
-
-### `avaliacao.py`
-Guarda as notas que os clientes dão aos prestadores.
-- Campos: cliente que avaliou, prestador avaliado, nota (1 a 5) e comentário.
-- Regra: cada cliente avalia o mesmo prestador **uma vez só**.
-
----
-
-## backend/rotas/
-
-Cada arquivo reúne **as ações** do sistema sobre um assunto. São as opções que aparecem nos menus do Cliente e do Prestador.
+**Lê e salva os dados** nos arquivos `.txt` da pasta `BancoDados` (criada sozinha). Os outros arquivos usam as funções `ler()` e `salvar()` daqui.
 
 ### `usuarios.py`
-- **Cadastrar usuário:** nome, e-mail e senha, escolhendo entre Cliente ou Prestador. Prestador também informa o nome do negócio e a categoria. Não deixa cadastrar e-mail repetido.
-- **Fazer login:** confere e-mail e senha e leva o usuário para a área certa (Cliente ou Prestador).
+Tudo sobre as **pessoas cadastradas**:
+- Como é um usuário: tipo (Cliente ou Prestador), nome, e-mail e senha. Prestador também tem nome do negócio e categoria.
+- **Cadastrar usuário** (não deixa repetir e-mail).
+- **Fazer login** (leva para a área do Cliente ou do Prestador).
 
 ### `servicos.py`
-- **Consultar serviços:** lista todos os serviços com descrição, preço e prestador (qualquer pessoa pode ver).
-- **Pesquisar serviços:** busca por categoria ou nome (Cliente).
-- **Cadastrar serviço:** adiciona um serviço novo (Prestador).
-- **Ver meus serviços:** lista só os serviços do prestador logado.
-- **Editar serviço:** muda a descrição ou o preço (somente o dono do serviço).
+Tudo sobre os **serviços que os prestadores oferecem**:
+- Como é um serviço: dono, categoria, nome, descrição e preço.
+- **Listar** todos os serviços, **pesquisar** por nome ou categoria.
+- **Cadastrar**, **ver os meus** e **editar** serviço (só o dono pode editar).
 
 ### `orcamentos.py`
-- **Solicitar orçamento:** o cliente escolhe um serviço e descreve o evento.
-- **Meus orçamentos:** o cliente acompanha o status e a resposta.
-- **Orçamentos recebidos:** o prestador vê os pedidos que chegaram para ele.
-- **Responder orçamento:** o prestador informa preço e condições; o status muda para Respondido.
+Tudo sobre os **pedidos de orçamento**:
+- Como é um orçamento: cliente, prestador, serviço, data do evento, convidados, detalhes, status (**Pendente** ou **Respondido**) e resposta.
+- Cliente **pede orçamento** e **acompanha** os seus.
+- Prestador **vê os pedidos** que recebeu e **responde** com preço e condições.
 
 ### `avaliacoes.py`
-- **Avaliar prestador:** o cliente dá uma nota de 1 a 5 e um comentário.
-- **Ver avaliações recebidas:** o prestador vê todas as notas e comentários, com a **média geral**.
+Tudo sobre as **notas dos clientes**:
+- Como é uma avaliação: cliente, prestador, nota de **1 a 5** e comentário.
+- Cliente **avalia** o prestador (só uma vez por prestador).
+- Prestador **vê suas avaliações** e a **média das notas**.
+
+### `portfolio.py`
+Tudo sobre o **portfólio dos prestadores** (é a "vitrine" de cada fornecedor):
+- Como é um item do portfólio: prestador dono, título do trabalho, descrição e link da foto.
+- Prestador **cadastra** os trabalhos que já fez (ex: "Casamento na praia - decoração completa").
+- Cliente **vê o portfólio** de um fornecedor antes de pedir orçamento, para conhecer a qualidade do trabalho.
+- Como o sistema ainda é no terminal, a foto entra como **link** (ex: link do Instagram ou do Google Drive).
+
+### `notificacoes.py`
+Tudo sobre os **avisos do sistema**, para ninguém perder nada importante:
+- Como é uma notificação: para quem é (e-mail), a mensagem e se já foi lida.
+- O sistema **cria** um aviso quando algo acontece. Exemplos:
+  - Prestador: *"Você recebeu um novo pedido de orçamento."*
+  - Cliente: *"Seu orçamento foi respondido."*
+  - Prestador: *"Você recebeu uma nova avaliação."*
+- As notificações **aparecem logo depois do login**, e o usuário pode vê-las de novo no menu.
+
+### `requirements.txt`
+Lista de bibliotecas extras que o projeto usar. Por enquanto fica vazio.
 
 ---
 
-## Diferença entre modelos e rotas
+## Como um arquivo usa o outro
 
-Jeito fácil de lembrar: **modelo é a ficha, rota é o atendente.**
+Você só roda o `executar.py`. Ele **pega emprestadas** as funções dos outros arquivos com o `import`:
 
-- **Modelo** = a **ficha em branco**. Diz quais campos uma informação tem (nome, e-mail, senha...). Não pergunta nada e não mostra nada na tela.
-- **Rota** = o **atendente**. Conversa com o usuário (`input` e `print`), confere as regras (ex: e-mail repetido) e usa o modelo para preencher a ficha.
-
-### Exemplo: cadastro de usuário
-
-**`modelos/usuario.py`**: só diz como é um usuário.
 ```python
-def criar_usuario(tipo, nome, email, senha):
-    return {
-        "tipo": tipo,
-        "nome": nome,
-        "email": email,
-        "senha": senha,
-    }
+from usuarios import cadastrar_usuario, fazer_login
+#    ↑ arquivo         ↑ funções que quero usar
 ```
 
-**`rotas/usuarios.py`**: pergunta, confere e usa o modelo.
-```python
-from modelos.usuario import criar_usuario
-
-usuarios = []
-
-def cadastrar_usuario():
-    nome = input("Nome: ")                 # conversa com o usuário
-    email = input("E-mail: ")
-    senha = input("Senha: ")
-
-    for u in usuarios:                     # confere a regra
-        if u["email"] == email:
-            print("E-mail já cadastrado!")
-            return
-
-    novo = criar_usuario("Cliente", nome, email, senha)   # preenche a ficha
-    usuarios.append(novo)                  # guarda
-    print("Cadastrado com sucesso!")
-```
-
-### O caminho da informação
-
-```
-Usuário digita  →  ROTA (pergunta e confere)  →  MODELO (monta a ficha)  →  guarda
-```
-
-### Resumo
-
-| | Modelo | Rota |
-|---|---|---|
-| Responde à pergunta | O que **é**? | O que **fazer**? |
-| Tem `input()` ou `print()`? | ❌ Não | ✅ Sim |
-| Tem regras (ex: e-mail repetido)? | ❌ Não | ✅ Sim |
-| Exemplo | "Usuário tem nome, e-mail e senha" | "Cadastrar usuário" |
-
-**Regra de ouro:** se o código tem `input()` ou `print()`, ele vai na **rota**. Se só diz quais campos existem, vai no **modelo**.
+No `import` não se escreve o `.py`. E sempre rode o programa **de dentro da pasta `backend`** (`cd backend`), senão o Python não encontra os arquivos.
 
 ---
 
-## frontend/
-
-É a "parte da frente": as telas que o usuário vai ver. **Será definida mais adiante.**
-
----
-
-## Como cada menu do sistema se encaixa
+## Onde fica cada opção do menu
 
 | Menu | Opção | Arquivo |
 |---|---|---|
-| Inicial | Cadastrar usuário / Fazer login | `rotas/usuarios.py` |
-| Inicial | Consultar serviços | `rotas/servicos.py` |
-| Cliente | Consultar e pesquisar serviços | `rotas/servicos.py` |
-| Cliente | Solicitar orçamento / Meus orçamentos | `rotas/orcamentos.py` |
-| Cliente | Avaliar prestador | `rotas/avaliacoes.py` |
-| Prestador | Cadastrar, ver e editar serviços | `rotas/servicos.py` |
-| Prestador | Ver e responder orçamentos | `rotas/orcamentos.py` |
-| Prestador | Ver avaliações e média | `rotas/avaliacoes.py` |
+| Inicial | Criar conta / Entrar | `usuarios.py` |
+| Inicial | Ver serviços | `servicos.py` |
+| Cliente | Consultar e pesquisar serviços | `servicos.py` |
+| Cliente | Solicitar orçamento / Meus orçamentos | `orcamentos.py` |
+| Cliente | Avaliar prestador | `avaliacoes.py` |
+| Cliente | Ver portfólio de um fornecedor | `portfolio.py` |
+| Cliente | Minhas notificações | `notificacoes.py` |
+| Prestador | Cadastrar, ver e editar serviços | `servicos.py` |
+| Prestador | Ver e responder orçamentos | `orcamentos.py` |
+| Prestador | Ver avaliações e média | `avaliacoes.py` |
+| Prestador | Cadastrar e ver meu portfólio | `portfolio.py` |
+| Prestador | Minhas notificações | `notificacoes.py` |
+
+---
+
+## Relação com o documento do projeto
+
+Cada arquivo atende a requisitos (RF) e casos de uso (UC) do documento oficial do Coonecta Eventos:
+
+| Arquivo | Requisitos | Casos de uso |
+|---|---|---|
+| `usuarios.py` | RF01 Cadastro, RF02 Login, RF03 Gerenciamento de Perfil, RF06 Contato | UC01, UC02, UC06, UC10 |
+| `servicos.py` | RF04 Visualização de Fornecedores e Serviços, RF05 Pesquisa de Serviços | UC03, UC04 |
+| `orcamentos.py` | RF07 Consulta de Orçamentos | UC07, UC08, UC12, UC13 |
+| `avaliacoes.py` | RF09 Avaliações | UC09, UC14 |
+| `portfolio.py` | RF10 Portfólio | UC05 |
+| `notificacoes.py` | RF08 Notificações | UC11 |
 
 ---
 
 ## Regras para o time
 
-- Tudo em português. Nomes de arquivo **sem acento, sem ç e sem espaço** (`orcamento.py`, nunca `orçamento.py`).
-- Antes de começar a trabalhar: `git pull`.
-- Ao terminar: no VS Code, aba **Source Control**, escreva a mensagem e clique em **Commit & Sync**.
+- Tudo em português. Nomes de arquivo **sem acento, sem ç e sem espaço** (`orcamentos.py`, nunca `orçamentos.py`).
+- Antes de começar a trabalhar: `git pull` (ou **Sync Changes** no VS Code).
+- Avise no grupo qual arquivo você vai mexer.
+- Ao terminar e testar: no VS Code, aba **Source Control**, escreva a mensagem e clique em **Commit & Sync**.
 - Mensagens de commit: `feat:` (coisa nova), `fix:` (correção), `docs:` (documentação).
