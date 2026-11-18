@@ -1,6 +1,8 @@
 # =============================================================
 # orcamentos.py
-# Tudo sobre ORÇAMENTOS: o cliente pede, o prestador responde.
+# Tudo sobre ORÇAMENTOS (RF07 / UC07, UC08, UC12, UC13):
+# - Cliente: pede orçamento, acompanha os pedidos e pode cancelar
+# - Prestador: vê os pedidos recebidos e responde (envia ou recusa)
 # Os orçamentos ficam salvos em dados/orcamentos.txt
 # =============================================================
 
@@ -9,12 +11,15 @@ import usuarios
 import servicos
 import notificacoes
 
+# "valor" e "mensagem" ficam no fim da lista, assim os pedidos
+# antigos (salvos antes desses campos existirem) continuam funcionando
 CAMPOS = ["id", "email_cliente", "email_prestador", "id_servico", "data_evento",
-          "convidados", "detalhes", "status", "resposta"]
+          "convidados", "detalhes", "status", "resposta", "valor", "mensagem"]
 
 PENDENTE = "Pendente"
 RESPONDIDO = "Respondido"
 RECUSADO = "Recusado"
+CANCELADO = "Cancelado"
 
 
 # ================= DADOS E VALIDAÇÕES =================
@@ -34,6 +39,15 @@ def buscar_id(id_orcamento):
     return None
 
 
+def atualizar(pedido):
+    """Troca o pedido antigo pelo atualizado (mesmo id) e salva."""
+    lista = todos()
+    for i in range(len(lista)):
+        if lista[i]["id"] == pedido["id"]:
+            lista[i] = pedido
+    guardar(lista)
+
+
 def do_cliente(email):
     lista = []
     for o in todos():
@@ -50,6 +64,14 @@ def do_prestador(email):
     return lista
 
 
+def ja_tem_pendente(email_cliente, id_servico):
+    """Confere se o cliente já tem um pedido pendente para esse serviço."""
+    for o in do_cliente(email_cliente):
+        if o["id_servico"] == id_servico and o["status"] == PENDENTE:
+            return True
+    return False
+
+
 def data_valida(data):
     """Aceita datas no formato dd/mm/aaaa, com ano a partir de 2026."""
     if len(data) != 10 or data[2] != "/" or data[5] != "/":
@@ -62,11 +84,38 @@ def data_valida(data):
     return 1 <= int(dia) <= 31 and 1 <= int(mes) <= 12 and int(ano) >= 2026
 
 
+def formatar_valor(valor):
+    """Ex: "1400.5" vira "R$ 1400,50"."""
+    return f"R$ {float(valor):.2f}".replace(".", ",")
+
+
+def nome_do_servico(id_servico):
+    s = servicos.buscar_id(id_servico)
+    if s != None:
+        return s["nome"]
+    return "(serviço removido)"
+
+
 # ================= TELAS E AÇÕES =================
 
+def mostrar_resumo(o, quem):
+    """Uma linha só, para as listas. quem = "cliente" ou "prestador"."""
+    if quem == "prestador":
+        outro = usuarios.buscar(o["email_cliente"])
+        nome_outro = "Cliente"
+        if outro != None:
+            nome_outro = outro["nome"]
+    else:
+        outro = usuarios.buscar(o["email_prestador"])
+        nome_outro = "Prestador"
+        if outro != None:
+            nome_outro = outro["nome_negocio"]
+    print(f"  Nº {o['id']} | {nome_do_servico(o['id_servico'])} | {nome_outro} | {o['data_evento']} | {o['status']}")
+
+
 def mostrar(o, quem):
-    """quem = "cliente" ou "prestador" (muda os dados de contato mostrados)."""
-    print(f"\nPedido nº {o['id']} | {o['status']}")
+    """Todos os detalhes de um pedido. quem = "cliente" ou "prestador"."""
+    print(f"\nPedido nº {o['id']} | Status: {o['status']}")
 
     s = servicos.buscar_id(o["id_servico"])
     if s != None:
@@ -86,10 +135,36 @@ def mostrar(o, quem):
     print(f"Data do evento: {o['data_evento']}")
     print(f"Convidados: {o['convidados']}")
     print(f"Detalhes: {o['detalhes']}")
-    if o["resposta"] != "":
-        print(f"Resposta: {o['resposta']}")
+
+    if o["status"] == RESPONDIDO:
+        print("\n-- Orçamento do prestador --")
+        if o["valor"] != "":
+            print(f"Valor: {formatar_valor(o['valor'])}")
+        print(f"Condições: {o['resposta']}")
+        if o["mensagem"] != "":
+            print(f"Mensagem: {o['mensagem']}")
+    elif o["status"] == RECUSADO:
+        print(f"\nMotivo da recusa: {o['resposta']}")
+    elif o["status"] == CANCELADO:
+        print("\nEste pedido foi cancelado pelo cliente.")
+    else:
+        print("\nAguardando resposta do prestador.")
     print("-" * 40)
 
+
+def escolher_pedido(lista):
+    """Pede o número de um pedido da lista. Devolve o pedido ou None (0 = voltar)."""
+    while True:
+        numero = input("\nDigite o nº do pedido para ver os detalhes (0 para voltar): ").strip()
+        if numero == "0" or numero == "":
+            return None
+        for o in lista:
+            if o["id"] == numero:
+                return o
+        print("Pedido não encontrado nesta lista.")
+
+
+# ---------- Lado do CLIENTE ----------
 
 def pedir(cliente):
     print("\n--- PEDIR ORÇAMENTO ---")
@@ -104,9 +179,16 @@ def pedir(cliente):
             print("Pedido cancelado.")
             return
         s = servicos.buscar_id(id_servico)
-        if s != None:
+        if s == None:
+            print("Serviço não encontrado.")
+        elif ja_tem_pendente(cliente["email"], id_servico):
+            print("Você já tem um pedido aguardando resposta para este serviço.")
+            print("Veja em 'Meus orçamentos'.")
+            return
+        else:
             break
-        print("Serviço não encontrado.")
+
+    print(f"\nPedindo orçamento de: {s['nome']} ({s['categoria']})")
 
     while True:
         data_evento = pedir_texto("Data do evento (dd/mm/aaaa): ")
@@ -133,11 +215,16 @@ def pedir(cliente):
         "detalhes": detalhes,
         "status": PENDENTE,
         "resposta": "",
+        "valor": "",
+        "mensagem": "",
     }
     lista.append(novo)
     guardar(lista)
-#    notificacoes.criar(s["email_prestador"], f"Você recebeu um pedido de orçamento (nº {novo['id']}).")
-#    print("Pedido de orçamento enviado!")
+
+    # Avisa o prestador (UC07: "o sistema encaminha a solicitação ao prestador")
+    notificacoes.criar(s["email_prestador"],
+                       f"Você recebeu um pedido de orçamento (nº {novo['id']}) de {cliente['nome']} para \"{s['nome']}\".")
+    print(f"Pedido de orçamento nº {novo['id']} enviado!")
 
 
 def meus_pedidos(cliente):
@@ -146,9 +233,36 @@ def meus_pedidos(cliente):
     if len(lista) == 0:
         print("Você ainda não pediu nenhum orçamento.")
         return
-    for o in lista:
-        mostrar(o, "cliente")
 
+    respondidos = 0
+    for o in lista:
+        mostrar_resumo(o, "cliente")
+        if o["status"] == RESPONDIDO or o["status"] == RECUSADO:
+            respondidos = respondidos + 1
+    if respondidos == 0:
+        print("\nAinda não existem respostas para os seus pedidos.")
+
+    pedido = escolher_pedido(lista)
+    if pedido == None:
+        return
+    mostrar(pedido, "cliente")
+
+    # Enquanto estiver pendente, o cliente pode desistir do pedido
+    if pedido["status"] == PENDENTE:
+        resposta = input("Deseja cancelar este pedido? (s/n): ").strip().lower()
+        if resposta == "s":
+            cancelar(cliente, pedido)
+
+
+def cancelar(cliente, pedido):
+    pedido["status"] = CANCELADO
+    atualizar(pedido)
+    notificacoes.criar(pedido["email_prestador"],
+                       f"O pedido de orçamento nº {pedido['id']} foi cancelado por {cliente['nome']}.")
+    print("Pedido cancelado.")
+
+
+# ---------- Lado do PRESTADOR ----------
 
 def pedidos_recebidos(prestador):
     print("\n--- PEDIDOS DE ORÇAMENTO RECEBIDOS ---")
@@ -156,8 +270,24 @@ def pedidos_recebidos(prestador):
     if len(lista) == 0:
         print("Você ainda não recebeu nenhum pedido de orçamento.")
         return
+
+    pendentes = 0
     for o in lista:
-        mostrar(o, "prestador")
+        mostrar_resumo(o, "prestador")
+        if o["status"] == PENDENTE:
+            pendentes = pendentes + 1
+    print(f"\n{pendentes} pedido(s) aguardando sua resposta.")
+
+    pedido = escolher_pedido(lista)
+    if pedido == None:
+        return
+    mostrar(pedido, "prestador")
+
+    # UC12: "o prestador pode responder à solicitação"
+    if pedido["status"] == PENDENTE:
+        resposta = input("Deseja responder agora? (s/n): ").strip().lower()
+        if resposta == "s":
+            responder_pedido(prestador, pedido)
 
 
 def responder(prestador):
@@ -169,51 +299,46 @@ def responder(prestador):
     if len(pendentes) == 0:
         print("Nenhum pedido aguardando resposta.")
         return
+
     for o in pendentes:
-        mostrar(o, "prestador")
+        mostrar_resumo(o, "prestador")
 
-    id_pedido = pedir_texto("ID do pedido que deseja responder: ")
-
-    lista = todos()
-    pedido = None
-    for o in lista:
-        if o["id"] == id_pedido and o["email_prestador"] == prestador["email"] and o["status"] == PENDENTE:
-            pedido = o
+    pedido = escolher_pedido(pendentes)
     if pedido == None:
-        print("Pedido não encontrado entre os pendentes.")
         return
+    mostrar(pedido, "prestador")
+    responder_pedido(prestador, pedido)
 
+
+def responder_pedido(prestador, pedido):
+    """Envia o orçamento (valor, condições e mensagem) ou recusa o pedido."""
     print("1. Enviar orçamento")
     print("2. Recusar pedido")
+    print("0. Voltar")
     opcao = input("Escolha: ").strip()
+
     if opcao == "1":
-        pedido["resposta"] = pedir_texto("Valor e condições: ")
+        while True:
+            valor = pedir_texto("Valor do orçamento (ex: 1400,00): ")
+            if servicos.preco_valido(valor):
+                break
+            print("Valor inválido. Use só números, com vírgula ou ponto.")
+        pedido["valor"] = valor.replace(",", ".")
+        pedido["resposta"] = pedir_texto("Condições (o que inclui, forma de pagamento): ")
+        pedido["mensagem"] = input("Mensagem para o cliente (opcional, Enter para pular): ").strip()
         pedido["status"] = RESPONDIDO
+        aviso = f"Seu pedido de orçamento nº {pedido['id']} foi respondido por {prestador['nome_negocio']}: {formatar_valor(pedido['valor'])}."
     elif opcao == "2":
         pedido["resposta"] = pedir_texto("Motivo da recusa: ")
         pedido["status"] = RECUSADO
+        aviso = f"Seu pedido de orçamento nº {pedido['id']} foi recusado por {prestador['nome_negocio']}."
+    elif opcao == "0":
+        return
     else:
         print("Opção inválida! Nada foi alterado.")
         return
 
-    guardar(lista)
-#    notificacoes.criar(pedido["email_cliente"], f"Seu orçamento nº {pedido['id']} foi respondido: {pedido['status']}.")
-#    print("Resposta enviada!")
-
-#DEIXEI COMENTADO porque coloquei essa função aqui na 'aba' de notificacoes.py
-# def avisos_cliente(cliente):
- #   quantidade = 0
-  #  for o in do_cliente(cliente["email"]):
-   #     if o["status"] != PENDENTE:
-#            quantidade = quantidade + 1
-#    if quantidade > 0:
-#        print(f"[Aviso] Você tem {quantidade} orçamento(s) com resposta. Veja em 'Meus orçamentos'.")
-
-
-#def avisos_prestador(prestador):
-#    quantidade = 0
-#    for o in do_prestador(prestador["email"]):
-#        if o["status"] == PENDENTE:
-#            quantidade = quantidade + 1
-#    if quantidade > 0:
-#        print(f"[Aviso] Você tem {quantidade} pedido(s) de orçamento aguardando resposta.")
+    atualizar(pedido)
+    # Avisa o cliente (UC13: "o sistema disponibiliza o orçamento ao cliente")
+    notificacoes.criar(pedido["email_cliente"], aviso + " Veja em 'Meus orçamentos'.")
+    print("Resposta enviada!")
