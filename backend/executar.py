@@ -7,6 +7,7 @@ import orcamentos
 import avaliacoes
 import notificacoes
 import portfolio
+import contato 
 
 
 def mostrar_titulo(texto):
@@ -80,7 +81,8 @@ def menu_cliente(pessoa):
         print("   8. Minhas notificações")
         mostrar_secao("Minha conta")
         print("   9. Meu perfil")
-        print("  10. Sair da conta")
+        print("  10. Ver contato de um fornecedor")
+        print("  11. Sair da conta")
         print("-" * 40)
         opcao = input("Escolha uma opção: ").strip()
 
@@ -103,6 +105,8 @@ def menu_cliente(pessoa):
         elif opcao == "9":
             pessoa = usuarios.editar_perfil(pessoa)
         elif opcao == "10":
+            contato.ver_contato()
+        elif opcao == "11":
             print("Saindo da conta...")
             break
         else:
