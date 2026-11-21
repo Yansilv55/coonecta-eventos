@@ -1,8 +1,4 @@
-# =============================================================
-# executar.py
-# Arquivo que INICIA o sistema. No terminal, dentro da pasta backend:
-#   python executar.py      (no Mac: python3 executar.py)
-# =============================================================
+
 
 from banco import criar_arquivos
 import usuarios
