@@ -8,6 +8,7 @@
 from banco import ler, salvar, pedir_texto, ARQ_USUARIOS
 import servicos
 import notificacoes
+import tela
 
 CAMPOS = ["tipo", "nome", "email", "senha", "telefone", "cpf", "cidade", "bairro",
           "nome_negocio", "categoria", "anos_experiencia", "cnpj", "instagram", "descricao"]
@@ -125,11 +126,11 @@ def pedir_senha():
     while True:
         senha = pedir_texto("Senha (mínimo 6 caracteres): ")
         if len(senha) < 6:
-            print("A senha precisa ter pelo menos 6 caracteres.")
+            tela.erro("A senha precisa ter pelo menos 6 caracteres.")
             continue
         repetir = input("Repita a senha: ").strip()
         if repetir != senha:
-            print("As senhas não são iguais. Tente de novo.")
+            tela.erro("As senhas não são iguais. Tente de novo.")
         else:
             return senha
 
@@ -137,9 +138,10 @@ def pedir_senha():
 def cadastrar():
     """Cadastra um Cliente ou um Prestador.
     Devolve o usuário criado, para ele já entrar na conta."""
-    print("\n--- CADASTRO ---")
-    print("1. Cliente")
-    print("2. Prestador de serviço")
+    tela.titulo("CADASTRO")
+    tela.secao("Tipo de conta")
+    tela.opcao(1, "Cliente (quero contratar serviços)")
+    tela.opcao(2, "Prestador de serviço (quero oferecer serviços)")
     while True:
         opcao = input("Você é: ").strip()
         if opcao == "1":
@@ -148,16 +150,16 @@ def cadastrar():
         elif opcao == "2":
             tipo = PRESTADOR
             break
-        print("Opção inválida! Digite 1 ou 2.")
+        tela.erro("Opção inválida! Digite 1 ou 2.")
 
     nome = pedir_texto("Nome completo: ")
 
     while True:
         email = pedir_texto("E-mail: ").lower()
         if not email_valido(email):
-            print("E-mail inválido. Exemplo: nome@email.com")
+            tela.erro("E-mail inválido. Exemplo: nome@email.com")
         elif buscar(email) != None:
-            print("Este e-mail já está cadastrado.")
+            tela.erro("Este e-mail já está cadastrado.")
         else:
             break
 
@@ -167,14 +169,14 @@ def cadastrar():
         telefone = so_numeros(pedir_texto("Telefone com DDD (só números): "))
         if telefone_valido(telefone):
             break
-        print("Telefone inválido. Digite o DDD + número (10 ou 11 números).")
+        tela.erro("Telefone inválido. Digite o DDD + número (10 ou 11 números).")
 
     while True:
         cpf = so_numeros(pedir_texto("CPF (só números): "))
         if not cpf_valido(cpf):
-            print("CPF inválido.")
+            tela.erro("CPF inválido. Confira os números.")
         elif cpf_existe(cpf):
-            print("Este CPF já está cadastrado.")
+            tela.erro("Este CPF já está cadastrado.")
         else:
             break
 
@@ -190,7 +192,7 @@ def cadastrar():
     descricao = ""
 
     if tipo == PRESTADOR:
-        print("\n-- Dados do negócio --")
+        tela.secao("Dados do negócio")
         nome_negocio = pedir_texto("Nome do negócio: ")
         categoria = servicos.escolher_categoria()
 
@@ -198,7 +200,7 @@ def cadastrar():
             anos_experiencia = pedir_texto("Anos de experiência: ")
             if anos_experiencia.isdigit():
                 break
-            print("Digite só números.")
+            tela.erro("Digite só números.")
 
         while True:
             cnpj = input("CNPJ (opcional, aperte Enter para pular): ").strip()
@@ -207,7 +209,7 @@ def cadastrar():
             cnpj = so_numeros(cnpj)
             if cnpj_valido(cnpj):
                 break
-            print("CNPJ inválido. Ele precisa ter 14 números.")
+            tela.erro("CNPJ inválido. Ele precisa ter 14 números.")
 
         instagram = input("Instagram (opcional, aperte Enter para pular): ").strip()
         descricao = pedir_texto("Fale um pouco sobre o seu trabalho: ")
@@ -239,65 +241,98 @@ def cadastrar():
     else:
         notificacoes.criar(email, "Bem-vindo(a) ao Coonecta Eventos! Veja os serviços e peça seu primeiro orçamento.")
 
-    print("Cadastro realizado com sucesso!")
-    print(f"Bem-vindo(a), {nome}!")
+    tela.mensagem("Cadastro realizado com sucesso!")
+    print(f"     Bem-vindo(a), {nome}!")
     return novo
 
 
 def entrar():
     """Pede e-mail e senha. Devolve o usuário se der certo, ou None.
     Se errar, oferece a recuperação de senha."""
-    print("\n--- ENTRAR ---")
+    tela.titulo("ENTRAR")
     email = input("E-mail: ").strip().lower()
     senha = input("Senha: ").strip()
     usuario = verificar_login(email, senha)
     if usuario == None:
-        print("E-mail ou senha incorretos.")
+        tela.erro("E-mail ou senha incorretos.")
         resposta = input("Esqueceu sua senha? (s/n): ").strip().lower()
         if resposta == "s":
             recuperar_senha()
         return None
-    print(f"Bem-vindo(a), {usuario['nome']}!")
+    tela.mensagem(f"Bem-vindo(a), {usuario['nome']}!")
     return usuario
 
 
 def recuperar_senha():
     """Cria uma senha nova depois de confirmar e-mail, CPF e telefone."""
-    print("\n--- RECUPERAR SENHA ---")
-    print("Para sua segurança, confirme os dados do seu cadastro.")
+    tela.titulo("RECUPERAR SENHA")
+    tela.subtitulo("Para sua segurança, confirme os dados do cadastro")
     email = pedir_texto("E-mail: ").lower()
     cpf = so_numeros(pedir_texto("CPF: "))
     telefone = so_numeros(pedir_texto("Telefone com DDD: "))
 
     usuario = buscar(email)
     if usuario == None or usuario["cpf"] != cpf or usuario["telefone"] != telefone:
-        print("Os dados não conferem com nenhum cadastro.")
+        tela.erro("Os dados não conferem com nenhum cadastro.")
         return
 
-    print("Dados confirmados! Crie sua nova senha.")
+    tela.mensagem("Dados confirmados! Crie sua nova senha.")
     usuario["senha"] = pedir_senha()
     atualizar(usuario)
     notificacoes.criar(email, "Sua senha foi alterada. Se não foi você, recupere a senha de novo.")
-    print("Senha alterada! Agora você já pode entrar com a nova senha.")
+    tela.mensagem("Senha alterada! Agora você já pode entrar com a nova senha.")
 
 
 def mostrar_perfil(pessoa):
-    print("\n--- MEU PERFIL ---")
-    print(f"Tipo: {pessoa['tipo']}")
-    print(f"Nome: {pessoa['nome']}")
-    print(f"E-mail: {pessoa['email']}")
-    print(f"Telefone: {pessoa['telefone']}")
-    print(f"CPF: {pessoa['cpf']}")
-    print(f"Cidade: {pessoa['cidade']} | Bairro: {pessoa['bairro']}")
+    tela.titulo("MEU PERFIL")
+    tela.secao("Dados pessoais")
+    tela.campo("Tipo", pessoa["tipo"])
+    tela.campo("Nome", pessoa["nome"])
+    tela.campo("E-mail", pessoa["email"])
+    tela.campo("Telefone", tela.telefone(pessoa["telefone"]))
+    tela.campo("CPF", tela.cpf(pessoa["cpf"]))
+    tela.campo("Cidade", f"{pessoa['cidade']} - {pessoa['bairro']}")
     if pessoa["tipo"] == PRESTADOR:
-        print(f"Negócio: {pessoa['nome_negocio']}")
-        print(f"Categoria: {pessoa['categoria']}")
-        print(f"Anos de experiência: {pessoa['anos_experiencia']}")
+        tela.secao("Dados do negócio")
+        tela.campo("Negócio", pessoa["nome_negocio"])
+        tela.campo("Categoria", pessoa["categoria"])
+        tela.campo("Experiência", f"{pessoa['anos_experiencia']} ano(s)")
         if pessoa["cnpj"] != "":
-            print(f"CNPJ: {pessoa['cnpj']}")
+            tela.campo("CNPJ", pessoa["cnpj"])
         if pessoa["instagram"] != "":
-            print(f"Instagram: {pessoa['instagram']}")
-        print(f"Sobre o trabalho: {pessoa['descricao']}")
+            tela.campo("Instagram", pessoa["instagram"])
+        tela.campo("Sobre", pessoa["descricao"])
+    tela.linha()
+
+
+def lista_de_prestadores():
+    """Todos os usuários que são prestadores."""
+    lista = []
+    for u in todos():
+        if u["tipo"] == PRESTADOR:
+            lista.append(u)
+    return lista
+
+
+def escolher_prestador():
+    """Mostra os fornecedores numerados e devolve o escolhido (ou None para voltar).
+    Assim o cliente não precisa saber o e-mail do prestador."""
+    lista = lista_de_prestadores()
+    if len(lista) == 0:
+        print("  Nenhum fornecedor cadastrado ainda.")
+        return None
+    print()
+    print(f"  {'Nº':>3}  {'Fornecedor':<20} {'Categoria':<12} {'Cidade':<12}")
+    tela.linha()
+    for i in range(len(lista)):
+        p = lista[i]
+        print(f"  {i + 1:>3}  {tela.cortar(p['nome_negocio'], 20):<20} "
+              f"{tela.cortar(p['categoria'], 12):<12} {tela.cortar(p['cidade'], 12):<12}")
+    tela.linha()
+    posicao = tela.escolher_da_lista(len(lista), "Escolha o fornecedor (0 para voltar): ")
+    if posicao == -1:
+        return None
+    return lista[posicao]
 
 
 def editar_perfil(pessoa):
@@ -308,8 +343,9 @@ def editar_perfil(pessoa):
     if resposta != "s":
         return pessoa
 
-    print("\nDeixe em branco e aperte Enter para manter o valor atual.")
-    print("(E-mail e CPF não podem ser alterados.)")
+    tela.secao("Editar perfil")
+    print("  Deixe em branco e aperte Enter para manter o valor atual.")
+    print("  (E-mail e CPF não podem ser alterados.)")
 
     novo = input(f"Nome [{pessoa['nome']}]: ").strip()
     if novo != "":
@@ -323,7 +359,7 @@ def editar_perfil(pessoa):
         if telefone_valido(novo):
             pessoa["telefone"] = novo
             break
-        print("Telefone inválido. Digite o DDD + número (10 ou 11 números).")
+        tela.erro("Telefone inválido. Digite o DDD + número (10 ou 11 números).")
 
     novo = input(f"Cidade [{pessoa['cidade']}]: ").strip()
     if novo != "":
@@ -345,7 +381,7 @@ def editar_perfil(pessoa):
             if novo.isdigit():
                 pessoa["anos_experiencia"] = novo
                 break
-            print("Digite só números.")
+            tela.erro("Digite só números.")
 
         novo = input(f"Instagram [{pessoa['instagram']}]: ").strip()
         if novo != "":
@@ -362,8 +398,8 @@ def editar_perfil(pessoa):
         if atual == pessoa["senha"]:
             pessoa["senha"] = pedir_senha()
         else:
-            print("Senha atual incorreta. A senha não foi alterada.")
+            tela.erro("Senha atual incorreta. A senha não foi alterada.")
 
     atualizar(pessoa)
-    print("Perfil atualizado!")
+    tela.mensagem("Perfil atualizado!")
     return pessoa

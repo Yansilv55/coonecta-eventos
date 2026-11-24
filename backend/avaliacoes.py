@@ -9,6 +9,7 @@ from banco import ler, salvar, pedir_texto, ARQ_AVALIACOES
 import usuarios
 import servicos
 import orcamentos
+import tela
 
 CAMPOS = ["email_cliente", "email_prestador", "nota", "comentario"]
 
@@ -68,10 +69,10 @@ def prestadores_do_cliente(cliente):
 
 
 def avaliar(cliente):
-    print("\n--- AVALIAR UM PRESTADOR ---")
+    tela.titulo("AVALIAR UM PRESTADOR")
     prestadores = prestadores_do_cliente(cliente)
     if len(prestadores) == 0:
-        print("Você só pode avaliar prestadores que responderam um orçamento seu.")
+        print("  Você só pode avaliar prestadores que responderam um orçamento seu.")
         return
 
     disponiveis = []
@@ -79,23 +80,22 @@ def avaliar(cliente):
         if not ja_avaliou(cliente["email"], p["email"]):
             disponiveis.append(p)
     if len(disponiveis) == 0:
-        print("Você já avaliou todos os prestadores que te atenderam.")
+        print("  Você já avaliou todos os prestadores que te atenderam.")
         return
 
+    tela.secao("Prestadores que te atenderam")
     for i in range(len(disponiveis)):
-        print(f"{i + 1}. {disponiveis[i]['nome_negocio']} ({disponiveis[i]['nome']})")
-    while True:
-        escolha = input("Escolha o prestador: ").strip()
-        if escolha.isdigit() and 1 <= int(escolha) <= len(disponiveis):
-            prestador = disponiveis[int(escolha) - 1]
-            break
-        print("Opção inválida!")
+        tela.opcao(i + 1, f"{disponiveis[i]['nome_negocio']} ({disponiveis[i]['nome']})")
+    posicao = tela.escolher_da_lista(len(disponiveis), "Escolha o prestador (0 para voltar): ")
+    if posicao == -1:
+        return
+    prestador = disponiveis[posicao]
 
     while True:
         nota = input("Nota (1 a 5): ").strip()
         if nota in ["1", "2", "3", "4", "5"]:
             break
-        print("Nota inválida! Digite um número de 1 a 5.")
+        tela.erro("Nota inválida! Digite um número de 1 a 5.")
 
     comentario = pedir_texto("Comentário: ")
 
@@ -107,38 +107,51 @@ def avaliar(cliente):
         "comentario": comentario,
     })
     guardar(lista)
-    print("Avaliação registrada!")
+    tela.mensagem("Avaliação registrada!")
+
+
+def estrelas(nota):
+    """Ex: 4 vira "★★★★☆"."""
+    return "★" * int(nota) + "☆" * (5 - int(nota))
 
 
 def mostrar_do_prestador(email):
     lista = do_prestador(email)
     if len(lista) == 0:
-        print("Ainda não há avaliações.")
+        print("  Ainda não há avaliações.")
         return
+    nota_media, quantidade = media(email)
+    tela.subtitulo(f"Média: {nota_media:.1f}/5  ({quantidade} avaliação(ões))")
     for a in lista:
         cliente = usuarios.buscar(a["email_cliente"])
         nome_cliente = "Cliente"
         if cliente != None:
             nome_cliente = cliente["nome"]
-        print(f"\n{nome_cliente} - Nota: {a['nota']}/5")
-        print(f"Comentário: {a['comentario']}")
-    nota_media, quantidade = media(email)
-    print(f"\nMédia: {nota_media:.1f}/5 ({quantidade} avaliação(ões))")
+        tela.cabecalho_cartao(f"{estrelas(a['nota'])}  {a['nota']}/5  -  {nome_cliente}")
+        tela.campo("Comentário", a["comentario"])
+    tela.linha()
 
 
 def minhas(prestador):
-    print("\n--- MINHAS AVALIAÇÕES ---")
+    tela.titulo("MINHAS AVALIAÇÕES")
     mostrar_do_prestador(prestador["email"])
 
 
 def ver_de_um_servico():
-    print("\n--- AVALIAÇÕES DE UM SERVIÇO ---")
-    id_servico = pedir_texto("ID do serviço: ")
+    tela.titulo("AVALIAÇÕES DE UM SERVIÇO")
+    lista_servicos = servicos.todos()
+    if len(lista_servicos) == 0:
+        print("  Nenhum serviço cadastrado ainda.")
+        return
+    servicos.mostrar_lista_curta(lista_servicos)
+    id_servico = input("ID do serviço (0 para voltar): ").strip()
+    if id_servico == "0" or id_servico == "":
+        return
     s = servicos.buscar_id(id_servico)
     if s == None:
-        print("Serviço não encontrado.")
+        tela.erro("Serviço não encontrado. Use um ID da lista acima.")
         return
     dono = usuarios.buscar(s["email_prestador"])
     if dono != None:
-        print(f"Avaliações de {dono['nome_negocio']}:")
+        tela.secao(f"Avaliações de {dono['nome_negocio']}")
     mostrar_do_prestador(s["email_prestador"])

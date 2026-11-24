@@ -7,6 +7,7 @@
 # =============================================================
 
 from banco import ler, salvar, novo_id, ARQ_NOTIFICACOES
+import tela
 
 CAMPOS = ["id", "email_usuario", "mensagem", "lida"]
 
@@ -43,28 +44,30 @@ def mostrar_novas(pessoa):
     for n in lista:
         if n["email_usuario"] == pessoa["email"] and n["lida"] == NAO_LIDA:
             if quantidade == 0:
-                print("\n--- NOTIFICAÇÕES NOVAS ---")
-            print(f"* {n['mensagem']}")
+                tela.titulo("NOTIFICAÇÕES NOVAS")
+            print(f"  * {n['mensagem']}")
             n["lida"] = LIDA
             quantidade = quantidade + 1
     if quantidade > 0:
+        tela.linha()
         guardar(lista)
 
 
 def minhas(pessoa):
     """Mostra todas as notificações do usuário (lidas e não lidas)."""
-    print("\n--- MINHAS NOTIFICAÇÕES ---")
+    tela.titulo("MINHAS NOTIFICAÇÕES")
     lista = todas()
     achou = False
     for n in lista:
         if n["email_usuario"] == pessoa["email"]:
             achou = True
             if n["lida"] == NAO_LIDA:
-                print(f"* (nova) {n['mensagem']}")
+                print(f"  * [NOVA] {n['mensagem']}")
                 n["lida"] = LIDA
             else:
-                print(f"* {n['mensagem']}")
+                print(f"  * {n['mensagem']}")
     if not achou:
-        print("Você não tem notificações.")
+        print("  Você não tem notificações.")
         return
+    tela.linha()
     guardar(lista)

@@ -1,4 +1,8 @@
-
+# =============================================================
+# executar.py
+# Arquivo que INICIA o sistema. No terminal, dentro da pasta backend:
+#   python3 executar.py      (no Windows: python executar.py)
+# =============================================================
 
 from banco import criar_arquivos
 import usuarios
@@ -7,19 +11,8 @@ import orcamentos
 import avaliacoes
 import notificacoes
 import portfolio
-import contato 
-
-
-def mostrar_titulo(texto):
-    """Mostra um título centralizado entre duas linhas de '='."""
-    print("\n" + "=" * 40)
-    print(f"{texto:^40}")
-    print("=" * 40)
-
-
-def mostrar_secao(nome):
-    """Mostra o nome de um grupo de opções dentro do menu."""
-    print(f"\n  -- {nome} --")
+import contato
+import tela
 
 
 def abrir_area(pessoa):
@@ -29,20 +22,21 @@ def abrir_area(pessoa):
     elif pessoa["tipo"] == usuarios.PRESTADOR:
         menu_prestador(pessoa)
     else:
-        print("Tipo de usuário desconhecido. Fale com o suporte.")
+        tela.erro("Tipo de usuário desconhecido. Fale com o suporte.")
 
 
 def menu_inicial():
     criar_arquivos()
 
     while True:
-        print("\n" + "=" * 40)
-        print("   COONECTA EVENTOS - MENU INICIAL")
-        print("=" * 40)
-        print("1. Cadastrar")
-        print("2. Entrar")
-        print("3. Ver serviços")
-        print("4. Sair")
+        tela.titulo("COONECTA EVENTOS - MENU INICIAL")
+        tela.subtitulo("Clientes e fornecedores de eventos")
+        print()
+        tela.opcao(1, "Cadastrar")
+        tela.opcao(2, "Entrar")
+        tela.opcao(3, "Ver serviços")
+        tela.opcao(4, "Sair")
+        tela.linha()
         opcao = input("Escolha uma opção: ").strip()
 
         if opcao == "1":
@@ -56,34 +50,34 @@ def menu_inicial():
         elif opcao == "3":
             servicos.listar_todos()
         elif opcao == "4":
-            print("Até logo!")
+            tela.mensagem("Até logo!")
             break
         else:
-            print("Opção inválida! Escolha entre 1 e 4.")
+            tela.erro("Opção inválida! Escolha entre 1 e 4.")
 
 
 def menu_cliente(pessoa):
     notificacoes.mostrar_novas(pessoa)
 
     while True:
-        mostrar_titulo("ÁREA DO CLIENTE")
-        print(f"{'Olá, ' + pessoa['nome'] + '!':^40}")
-        mostrar_secao("Serviços")
-        print("   1. Ver serviços")
-        print("   2. Buscar serviços")
-        print("   3. Ver avaliações de um serviço")
-        print("   4. Ver portfólio de um fornecedor")
-        mostrar_secao("Orçamentos")
-        print("   5. Pedir orçamento")
-        print("   6. Meus orçamentos")
-        mostrar_secao("Avaliações e avisos")
-        print("   7. Avaliar um prestador")
-        print("   8. Minhas notificações")
-        mostrar_secao("Minha conta")
-        print("   9. Meu perfil")
-        print("  10. Ver contato de um fornecedor")
-        print("  11. Sair da conta")
-        print("-" * 40)
+        tela.titulo("ÁREA DO CLIENTE")
+        tela.subtitulo(f"Olá, {pessoa['nome']}!")
+        tela.secao("Fornecedores e serviços")
+        tela.opcao(1, "Ver serviços")
+        tela.opcao(2, "Buscar serviços")
+        tela.opcao(3, "Ver avaliações de um serviço")
+        tela.opcao(4, "Ver portfólio de um fornecedor")
+        tela.opcao(5, "Ver contato de um fornecedor")
+        tela.secao("Orçamentos")
+        tela.opcao(6, "Pedir orçamento")
+        tela.opcao(7, "Meus orçamentos")
+        tela.secao("Avaliações e avisos")
+        tela.opcao(8, "Avaliar um prestador")
+        tela.opcao(9, "Minhas notificações")
+        tela.secao("Minha conta")
+        tela.opcao(10, "Meu perfil")
+        tela.opcao(11, "Sair da conta")
+        tela.linha()
         opcao = input("Escolha uma opção: ").strip()
 
         if opcao == "1":
@@ -95,48 +89,48 @@ def menu_cliente(pessoa):
         elif opcao == "4":
             portfolio.ver_de_um_prestador()
         elif opcao == "5":
-            orcamentos.pedir(pessoa)
-        elif opcao == "6":
-            orcamentos.meus_pedidos(pessoa)
-        elif opcao == "7":
-            avaliacoes.avaliar(pessoa)
-        elif opcao == "8":
-            notificacoes.minhas(pessoa)
-        elif opcao == "9":
-            pessoa = usuarios.editar_perfil(pessoa)
-        elif opcao == "10":
             contato.ver_contato()
+        elif opcao == "6":
+            orcamentos.pedir(pessoa)
+        elif opcao == "7":
+            orcamentos.meus_pedidos(pessoa)
+        elif opcao == "8":
+            avaliacoes.avaliar(pessoa)
+        elif opcao == "9":
+            notificacoes.minhas(pessoa)
+        elif opcao == "10":
+            pessoa = usuarios.editar_perfil(pessoa)
         elif opcao == "11":
-            print("Saindo da conta...")
+            tela.mensagem("Saindo da conta...")
             break
         else:
-            print("Opção inválida!")
+            tela.erro("Opção inválida! Escolha entre 1 e 11.")
 
 
 def menu_prestador(pessoa):
     notificacoes.mostrar_novas(pessoa)
 
     while True:
-        mostrar_titulo("ÁREA DO PRESTADOR")
-        print(f"{'Negócio: ' + pessoa['nome_negocio']:^40}")
-        mostrar_secao("Serviços")
-        print("   1. Cadastrar serviço")
-        print("   2. Meus serviços")
-        print("   3. Editar serviço")
-        print("   4. Excluir serviço")
-        mostrar_secao("Portfólio")
-        print("   5. Adicionar trabalho ao portfólio")
-        print("   6. Meu portfólio")
-        mostrar_secao("Orçamentos")
-        print("   7. Ver pedidos de orçamento")
-        print("   8. Responder pedido")
-        mostrar_secao("Avaliações e avisos")
-        print("   9. Minhas avaliações")
-        print("  10. Minhas notificações")
-        mostrar_secao("Minha conta")
-        print("  11. Meu perfil")
-        print("  12. Sair da conta")
-        print("-" * 40)
+        tela.titulo("ÁREA DO PRESTADOR")
+        tela.subtitulo(f"Negócio: {pessoa['nome_negocio']}")
+        tela.secao("Serviços")
+        tela.opcao(1, "Cadastrar serviço")
+        tela.opcao(2, "Meus serviços")
+        tela.opcao(3, "Editar serviço")
+        tela.opcao(4, "Excluir serviço")
+        tela.secao("Portfólio")
+        tela.opcao(5, "Adicionar trabalho ao portfólio")
+        tela.opcao(6, "Meu portfólio")
+        tela.secao("Orçamentos")
+        tela.opcao(7, "Ver pedidos de orçamento")
+        tela.opcao(8, "Responder pedido")
+        tela.secao("Avaliações e avisos")
+        tela.opcao(9, "Minhas avaliações")
+        tela.opcao(10, "Minhas notificações")
+        tela.secao("Minha conta")
+        tela.opcao(11, "Meu perfil")
+        tela.opcao(12, "Sair da conta")
+        tela.linha()
         opcao = input("Escolha uma opção: ").strip()
 
         if opcao == "1":
@@ -162,10 +156,10 @@ def menu_prestador(pessoa):
         elif opcao == "11":
             pessoa = usuarios.editar_perfil(pessoa)
         elif opcao == "12":
-            print("Saindo da conta...")
+            tela.mensagem("Saindo da conta...")
             break
         else:
-            print("Opção inválida!")
+            tela.erro("Opção inválida! Escolha entre 1 e 12.")
 
 
 if __name__ == "__main__":

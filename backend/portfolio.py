@@ -8,55 +8,72 @@
 
 from banco import ler, salvar, novo_id, pedir_texto, ARQ_PORTFOLIO
 import usuarios
+import tela
 
 CAMPOS = ["id", "email_prestador", "titulo", "descricao", "foto"]
 
+
+# ================= DADOS E VALIDAÇÕES =================
 
 def todos():
     return ler(ARQ_PORTFOLIO, CAMPOS)
 
 
-def do_prestador(email):
-    return [p for p in todos() if p["email_prestador"] == email]
+def guardar(lista):
+    salvar(ARQ_PORTFOLIO, CAMPOS, lista)
 
+
+def do_prestador(email):
+    lista = []
+    for p in todos():
+        if p["email_prestador"] == email:
+            lista.append(p)
+    return lista
+
+
+# ================= TELAS E AÇÕES =================
 
 def mostrar(lista):
+    """Mostra cada trabalho do portfólio como um cartão."""
     if len(lista) == 0:
-        print("Nenhum trabalho no portfólio ainda.")
+        print("  Nenhum trabalho no portfólio ainda.")
         return
+    tela.subtitulo(f"{len(lista)} trabalho(s)")
     for p in lista:
-        print(f"\n{p['titulo']}")
-        print(f"Descrição: {p['descricao']}")
+        tela.cabecalho_cartao(p["titulo"])
+        tela.campo("Descrição", p["descricao"])
         if p["foto"] != "":
-            print(f"Foto: {p['foto']}")
-        print("-" * 40)
+            tela.campo("Foto", p["foto"])
+    tela.linha()
 
 
 def cadastrar(prestador):
-    print("\n--- ADICIONAR TRABALHO AO PORTFÓLIO ---")
+    tela.titulo("ADICIONAR TRABALHO AO PORTFÓLIO")
+    titulo = pedir_texto("Título do trabalho (ex: Casamento na praia 2025): ")
+    descricao = pedir_texto("Descrição: ")
+    foto = input("Link da foto (opcional, Enter para pular): ").strip()
+
     lista = todos()
     lista.append({
         "id": novo_id(lista),
         "email_prestador": prestador["email"],
-        "titulo": pedir_texto("Título do trabalho: "),
-        "descricao": pedir_texto("Descrição: "),
-        "foto": input("Link da foto (opcional): ").strip(),
+        "titulo": titulo,
+        "descricao": descricao,
+        "foto": foto,
     })
-    salvar(ARQ_PORTFOLIO, CAMPOS, lista)
-    print("Trabalho adicionado ao portfólio!")
+    guardar(lista)
+    tela.mensagem("Trabalho adicionado ao portfólio!")
 
 
 def meu(prestador):
-    print("\n--- MEU PORTFÓLIO ---")
+    tela.titulo("MEU PORTFÓLIO")
     mostrar(do_prestador(prestador["email"]))
 
 
 def ver_de_um_prestador():
-    print("\n--- PORTFÓLIO DE UM FORNECEDOR ---")
-    email = pedir_texto("E-mail do prestador: ")
-    prestador = usuarios.buscar(email)
-    if prestador is None or prestador["tipo"] != usuarios.PRESTADOR:
-        print("Prestador não encontrado.")
+    tela.titulo("PORTFÓLIO DE UM FORNECEDOR")
+    prestador = usuarios.escolher_prestador()
+    if prestador == None:
         return
-    print(f"Portfólio de {prestador['nome_negocio']}:")
-    mostrar(do_prestador(email))
+    tela.secao(f"Portfólio de {prestador['nome_negocio']}")
+    mostrar(do_prestador(prestador["email"]))

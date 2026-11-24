@@ -6,30 +6,29 @@
 # - Se o prestador não tiver contato cadastrado, o sistema avisa
 # =============================================================
 
-from banco import pedir_texto
 import usuarios
+import tela
 
+
+# ================= TELAS E AÇÕES =================
 
 def ver_contato():
-    print("\n--- CONTATO DO FORNECEDOR ---")
-    email = pedir_texto("E-mail do prestador: ")
-    prestador = usuarios.buscar(email)
-    if prestador is None or prestador["tipo"] != usuarios.PRESTADOR:
-        print("Prestador não encontrado.")
+    tela.titulo("CONTATO DO FORNECEDOR")
+    prestador = usuarios.escolher_prestador()
+    if prestador == None:
         return
 
-    contatos = []
+    tela.cabecalho_cartao(f"{prestador['nome_negocio']} ({prestador['nome']})")
+    achou = False
     if prestador["telefone"] != "":
-        contatos.append(f"Telefone/WhatsApp: {prestador['telefone']}")
+        tela.campo("WhatsApp", tela.telefone(prestador["telefone"]))
+        achou = True
     if prestador["email"] != "":
-        contatos.append(f"E-mail: {prestador['email']}")
+        tela.campo("E-mail", prestador["email"])
+        achou = True
     if prestador["instagram"] != "":
-        contatos.append(f"Instagram: {prestador['instagram']}")
-
-    print(f"\nContato de {prestador['nome_negocio']}:")
-    if len(contatos) == 0:
-        print("Este prestador ainda não cadastrou meios de contato.")
-    for contato in contatos:
-        print(contato)
-# =============================================================
-
+        tela.campo("Instagram", prestador["instagram"])
+        achou = True
+    if not achou:
+        print("  Este prestador ainda não cadastrou meios de contato.")
+    tela.linha()
